@@ -176,6 +176,7 @@
 
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="config.js"></script>
     <script>
         $(document).ready(function () {
             // Auth Check - Allow customers to view retailer dashboard for order receipts
@@ -189,16 +190,7 @@
             // Load Data
             // Fetch orders from API
             $.ajax({
-                url: '/api/orders?all=true', // Assuming we need a way to get ALL orders to filter client side or an endpoint for retailer orders
-                // Since the current API might filter by user, let's check if we need to modify the server or just use what we have.
-                // The current GET /api/orders filters by email/role. If role is retailer/distributor, it *should* return relevant orders?
-                // Left's check server.js logic. If role is retailer, does it return all? 
-                // Let's assume for now we need to fetch all and filter, or the backend supports it.
-                // Actually, let's just try to fetch `/api/orders?email=${currentUser.email}&role=${currentUser.role}`
-                // If the backend is smart, it returns all orders for a distributor.
-                // If not, we might need to rely on the fact that we just want to see orders for *my* products.
-                // Let's use the API we built.
-                url: `/api/orders?role=${currentUser.role}`,
+                url: `${window.API.orders}?role=${currentUser.role}`,
                 type: 'GET',
                 success: function (data) {
                     const allOrders = data;
@@ -355,7 +347,7 @@
                 const newStatus = $select.val();
 
                 $.ajax({
-                    url: `/api/orders/${orderId}`,
+                    url: window.API.updateOrder(orderId),
                     type: 'PUT',
                     contentType: 'application/json',
                     data: JSON.stringify({ shipmentStatus: newStatus }),

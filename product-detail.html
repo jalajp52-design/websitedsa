@@ -342,6 +342,7 @@
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="config.js"></script>
     <script src="js/main.js"></script>
     <script>
         $(document).ready(function () {
@@ -382,47 +383,64 @@
 
         function loadProductDetail(productId) {
             $.ajax({
-                url: '/api/products', // Use API
+                url: window.API.products, // Use API
                 type: 'GET',
                 dataType: 'json',
                 success: function (data) {
-                    const extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
-                    const allProducts = [...data, ...extraProducts];
-                    const product = allProducts.find(p => p.id == productId || p.id === productId);
-
-                    if (!product) {
-                        alert('Product not found!');
-                        window.location.href = 'products.html';
-                        return;
-                    }
-
-                    // Populate product details
-                    $('#product-image').attr('src', product.image);
-                    $('#product-name').text(product.name);
-                    $('#product-price').text('$' + parseFloat(product.price).toFixed(2));
-                    $('#product-description').text(product.description);
-                    $('#product-category').text(product.category);
-                    $('#product-distributor').text('Distributed by: ' + (product.distributor || 'Main Warehouse'));
-
-                    // Store data for add to cart
-                    $('#add-to-cart-btn').data('id', product.id);
-                    $('#add-to-cart-btn').data('name', product.name);
-                    $('#add-to-cart-btn').data('price', parseFloat(product.price));
-                    $('#add-to-cart-btn').data('image', product.image);
-                    $('#add-to-cart-btn').data('distributor', product.distributor || 'Main Warehouse');
-
-                    // Check if user is retailer
-                    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-                    if (currentUser && currentUser.role === 'retailer') {
-                        $('#add-to-cart-btn').hide();
-                    }
+                    displayProduct(data, productId);
                 },
                 error: function (err) {
-                    console.error('Error loading product:', err);
-                    alert('Error loading product details!');
-                    window.location.href = 'products.html';
+                    console.error('Error loading products from API:', err);
+                    // Fallback to local JSON file
+                    $.ajax({
+                        url: 'data/products.json',
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            console.log('Fallback: Loaded products from local JSON');
+                            displayProduct(data, productId);
+                        },
+                        error: function (fallbackErr) {
+                            console.error('Error loading products from local JSON:', fallbackErr);
+                            alert('Error loading product details!');
+                            window.location.href = 'products.html';
+                        }
+                    });
                 }
             });
+
+            function displayProduct(data, productId) {
+                const extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
+                const allProducts = [...data, ...extraProducts];
+                const product = allProducts.find(p => p.id == productId || p.id === productId);
+
+                if (!product) {
+                    alert('Product not found!');
+                    window.location.href = 'products.html';
+                    return;
+                }
+
+                // Populate product details
+                $('#product-image').attr('src', product.image);
+                $('#product-name').text(product.name);
+                $('#product-price').text('$' + parseFloat(product.price).toFixed(2));
+                $('#product-description').text(product.description);
+                $('#product-category').text(product.category);
+                $('#product-distributor').text('Distributed by: ' + (product.distributor || 'Main Warehouse'));
+
+                // Store data for add to cart
+                $('#add-to-cart-btn').data('id', product.id);
+                $('#add-to-cart-btn').data('name', product.name);
+                $('#add-to-cart-btn').data('price', parseFloat(product.price));
+                $('#add-to-cart-btn').data('image', product.image);
+                $('#add-to-cart-btn').data('distributor', product.distributor || 'Main Warehouse');
+
+                // Check if user is retailer
+                const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                if (currentUser && currentUser.role === 'retailer') {
+                    $('#add-to-cart-btn').hide();
+                }
+            }
         }
 
         function updateCartCount() {

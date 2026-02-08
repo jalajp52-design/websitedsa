@@ -164,7 +164,7 @@ $(document).ready(function () {
             };
 
             try {
-                const response = await fetch('/api/register', {
+                const response = await fetch(window.API.register, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
@@ -191,7 +191,7 @@ $(document).ready(function () {
             const password = $('#login-password').val();
 
             try {
-                const response = await fetch('/api/login', {
+                const response = await fetch(window.API.login, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
@@ -386,7 +386,7 @@ $(document).ready(function () {
         const newStatus = $(this).val();
 
         // Update via API
-        fetch(`/api/orders/${dbId}`, {
+        fetch(window.API.updateOrder(dbId), {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ shipmentStatus: newStatus })
@@ -451,8 +451,8 @@ $(document).ready(function () {
         let orders = [];
         try {
             const url = emailFromUrl
-                ? `/api/orders?email=${encodeURIComponent(emailFromUrl)}&role=${roleFromUrl}`
-                : '/api/orders';
+                ? `${window.API.orders}?email=${encodeURIComponent(emailFromUrl)}&role=${roleFromUrl}`
+                : window.API.orders;
             const response = await fetch(url);
             if (response.ok) {
                 orders = await response.json();
@@ -628,7 +628,7 @@ $(document).ready(function () {
 
     function loadProducts(limit, containerId) {
         $.ajax({
-            url: '/api/products', // Use API instead of static JSON
+            url: window.API.products, // Use API instead of static JSON
             type: 'GET',
             dataType: 'json',
             cache: false,
@@ -774,7 +774,7 @@ $(document).ready(function () {
 
     function loadProductsByCategory(category, containerId) {
         $.ajax({
-            url: '/api/products', // Use API
+            url: window.API.products, // Use API
             type: 'GET',
             dataType: 'json',
             cache: false,
@@ -905,7 +905,7 @@ $(document).ready(function () {
 
     function loadTopSales(containerId) {
         $.ajax({
-            url: '/api/products', // Use API
+            url: window.API.products, // Use API
             type: 'GET',
             dataType: 'json',
             cache: false,
@@ -1136,7 +1136,7 @@ $(document).ready(function () {
         };
 
         // Send order to API
-        fetch('/api/orders', {
+        fetch(window.API.orders, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(purchase)
