@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Receipt | Glow & Gloss</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .receipt-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: white;
+            padding: 2rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+        }
+
+        .receipt-header {
+            text-align: center;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .receipt-section {
+            margin-bottom: 2rem;
+        }
+
+        .receipt-section h5 {
+            color: #495057;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .item-list {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        .item-list .list-group-item {
+            border: none;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .item-list .list-group-item:last-child {
+            border-bottom: none;
+        }
+
+        .total-row {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <img src="images/logo.png" alt="Glow & Gloss Logo" width="50" height="50" class="d-inline-block align-text-top me-2">
+                <span class="brand-text" style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.5rem; background: linear-gradient(45deg, #ff6b6b, #feca57); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Glow & Gloss</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="orders.html">My Orders</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Receipt Content -->
+    <div class="container">
+        <div class="receipt-container">
+            <div class="receipt-header">
+                <h1 class="display-5 fw-bold text-success"><i class="fas fa-check-circle me-2"></i>Order Confirmed!</h1>
+                <p class="text-muted">Thank you for your purchase. Your order has been placed successfully.</p>
+            </div>
+
+            <div id="receipt-content">
+                <!-- Receipt details will be loaded here -->
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading receipt...</p>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="orders.html" class="btn btn-primary me-2">View All Orders</a>
+                <a href="index.html" class="btn btn-outline-primary">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        $(document).ready(function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('orderId');
+
+            if (!orderId) {
+                $('#receipt-content').html('<div class="alert alert-danger">Order ID not found. Please check your orders page.</div>');
+                return;
+            }
+
+            // Always fetch current order details from API
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            const storedEmail = localStorage.getItem('userEmail');
+            const email = (currentUser ? currentUser.email : storedEmail || '').trim();
+            const role = currentUser ? currentUser.role : 'customer';
+
+            // Check for lastOrder in localStorage for fallback
+            const lastOrder = JSON.parse(localStorage.getItem('lastOrder'));
+
+            if (!email && (!lastOrder || lastOrder.orderId !== orderId)) {
+                $('#receipt-content').html('<div class="alert alert-warning">Please login to view your receipt.</div>');
+                return;
+            }
+            
+            // If no email but we have the order locally, render it immediately
+            if (!email && lastOrder && lastOrder.orderId === orderId) {
+                renderReceipt(lastOrder);
+                return;
+            }
+
+            fetch(`/api/orders?email=${encodeURIComponent(email)}&role=${role}`)
+                .then(response => response.json())
+                .then(orders => {
+                    let foundOrder = orders.find(o => o.orderId === orderId);
+                    
+                    // Fallback to local storage if not found in API (e.g. API lag)
+                    if (!foundOrder && lastOrder && lastOrder.orderId === orderId) {
+                        foundOrder = lastOrder;
+                    }
+
+                    if (!foundOrder) {
+                        $('#receipt-content').html('<div class="alert alert-danger">Order not found.</div>');
+                        return;
+                    }
+                    renderReceipt(foundOrder);
+                })
+                .catch(err => {
+                    console.error('Error loading receipt:', err);
+                    // Fallback on error
+                    if (lastOrder && lastOrder.orderId === orderId) {
+                        renderReceipt(lastOrder);
+                    } else {
+                        $('#receipt-content').html('<div class="alert alert-danger">Error loading receipt. Please try again.</div>');
+                    }
+                });
+
+            function renderReceipt(order) {
+                const shipping = order.shippingDetails || {};
+                const itemsHtml = order.items.map(item => `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <img src="${item.image}" alt="${item.name}" width="50" class="me-3 rounded">
+                            <div>
+                                <h6 class="my-0">${item.name}</h6>
+                                <small class="text-muted">Quantity: ${item.quantity}</small>
+                            </div>
+                        </div>
+                        <span class="text-muted">$${(item.price * item.quantity).toFixed(2)}</span>
+                    </li>
+                `).join('');
+
+                const receiptHtml = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="receipt-section">
+                                <h5><i class="fas fa-shopping-cart me-2"></i>Order Details</h5>
+                                <p><strong>Order ID:</strong> ${order.orderId}</p>
+                                <p><strong>Date:</strong> ${new Date(order.date).toLocaleString()}</p>
+                                <p><strong>Status:</strong> <span class="badge bg-warning">${order.status}</span></p>
+                                <p><strong>Shipment Status:</strong> <span class="badge bg-primary">${order.shipmentStatus}</span></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="receipt-section">
+                                <h5><i class="fas fa-shipping-fast me-2"></i>Shipping Information</h5>
+                                <p><strong>Name:</strong> ${shipping.firstName || ''} ${shipping.lastName || ''}</p>
+                                <p><strong>Email:</strong> ${shipping.email || ''}</p>
+                                <p><strong>Phone:</strong> ${shipping.phone || ''}</p>
+                                <p><strong>Address:</strong> ${shipping.address || ''}</p>
+                                ${shipping.address2 ? `<p><strong>Address 2:</strong> ${shipping.address2}</p>` : ''}
+                                <p><strong>City:</strong> ${shipping.city || ''}</p>
+                                <p><strong>State:</strong> ${shipping.state || ''}</p>
+                                <p><strong>Zip:</strong> ${shipping.zip || ''}</p>
+                                <p><strong>Country:</strong> ${shipping.country || ''}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="receipt-section">
+                        <h5><i class="fas fa-list me-2"></i>Items Ordered</h5>
+                        <ul class="list-group item-list">
+                            ${itemsHtml}
+                            <li class="list-group-item d-flex justify-content-between align-items-center total-row">
+                                <strong>Total</strong>
+                                <strong>$${parseFloat(order.total).toFixed(2)}</strong>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="receipt-section">
+                        <h5><i class="fas fa-credit-card me-2"></i>Payment Information</h5>
+                        <p><strong>Payment Method:</strong> ${shipping.paymentMethod || 'Credit Card'}</p>
+                        <p><strong>Card Name:</strong> ${shipping.cardName || ''}</p>
+                        <p><strong>Card Number:</strong> **** **** **** ${shipping.cardNumber ? shipping.cardNumber.slice(-4) : ''}</p>
+                    </div>
+                `;
+
+                $('#receipt-content').html(receiptHtml);
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glow & Gloss | Premium Beauty Store</title>
+    <meta name="description"
+        content="Discover the finest collection of shampoos, conditioners, and hair spa products at Glow & Gloss. Your ultimate beauty destination.">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Motion.dev -->
+    <script src="https://cdn.jsdelivr.net/npm/@motionone/motion@10.15.5/dist/motion.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: calc(100vh - 200px);
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            font-weight: 500;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+        .sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+        }
+        .sidebar .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+            color: white;
+        }
+        .sidebar .brand span {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            flex: 1;
+        }
+        .sidebar-toggle {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .content {
+                margin-left: 0;
+            }
+            .sidebar-toggle {
+                display: block;
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                z-index: 1001;
+                background: #667eea;
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 5px;
+            }
+        }
+        .nav-section {
+            margin-bottom: 20px;
+        }
+        .nav-section h6 {
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="brand">
+            <span>Glow & Gloss</span>
+        </div>
+        <nav class="nav flex-column">
+            <div class="nav-section">
+                <h6>Main</h6>
+                <a class="nav-link active" href="index.html">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a class="nav-link" href="products.html">
+                    <i class="fas fa-shopping-bag"></i> Products
+                </a>
+                <a class="nav-link" href="about.html">
+                    <i class="fas fa-info-circle"></i> About
+                </a>
+            </div>
+            <div class="nav-section">
+                <h6>Account</h6>
+                <a class="nav-link" href="orders.html">
+                    <i class="fas fa-list"></i> My Orders
+                </a>
+                <a class="nav-link" href="retailer-dashboard.html">
+                    <i class="fas fa-store"></i> Retailer Portal
+                </a>
+                <a class="nav-link" href="login.html">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <a class="nav-link" href="register.html">
+                    <i class="fas fa-user-plus"></i> Register
+                </a>
+            </div>
+            <div class="nav-section">
+                <h6>Categories</h6>
+                <a class="nav-link" href="products.html?cat=Shampoo">
+                    <i class="fas fa-shower"></i> Shampoos
+                </a>
+                <a class="nav-link" href="products.html?cat=Conditioner">
+                    <i class="fas fa-wind"></i> Conditioners
+                </a>
+                <a class="nav-link" href="products.html?cat=Hair Spa">
+                    <i class="fas fa-spa"></i> Hair Spa
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Toggle Button for Mobile -->
+    <button class="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Content Area -->
+    <div class="content">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <span class="brand-text">Glow & Gloss</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="d-none d-lg-block mx-auto" style="width: 300px;">
+                <form id="nav-search-form" class="position-relative">
+                    <input type="text" id="nav-search-input" class="form-control rounded-pill bg-light border-0 ps-4"
+                        placeholder="Search brands...">
+                    <button type="submit"
+                        class="position-absolute top-50 end-0 translate-middle-y border-0 bg-transparent pe-3 text-muted">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="orders.html">My Orders</a></li>
+                    <li class="nav-item"><a class="nav-link" href="retailer-dashboard.html">Retailer Portal</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                    <li class="nav-item position-relative me-3">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#cartModal">
+                            <i class="fas fa-shopping-cart fs-5"></i>
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-count"
+                                style="font-size: 0.6rem;">0</span>
+                        </a>
+                    </li>
+                    <!-- Login/Register buttons will be replaced by main.js -->
+                    <li class="nav-item login-btn"><a class="nav-link btn btn-outline-dark ms-lg-3 px-4"
+                            href="login.html">Login</a></li>
+                    <li class="nav-item register-btn"><a class="nav-link btn btn-outline-dark ms-lg-2 px-4 mt-2 mt-lg-0"
+                            href="register.html">Register</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section d-flex align-items-center">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-3 fw-bold mb-4">Elevate Your <br><span class="text-accent">Beauty Ritual</span>
+                    </h1>
+                    <p class="lead mb-5 text-muted">Premium hair care and skincare solutions crafted with clinical
+                        precision and botanical elegance. Discover your natural glow.</p>
+                    <div class="d-flex gap-3">
+                        <a href="products.html" class="btn btn-primary btn-lg px-5 py-3">Shop Collection</a>
+                        <a href="about.html" class="btn btn-outline-primary btn-lg px-5 py-3">Our Story</a>
+                    </div>
+                </div>
+                <div class="col-lg-6 mt-5 mt-lg-0 p-0 overflow-hidden">
+                    <div class="antigravity-scene" id="interactive-hero">
+                        <!-- Main Central Orb with Hero Product -->
+                        <div class="glass-orb">
+                            <img src="images/conditioner.png" class="orb-product" alt="Hero Product">
+                            <div class="orb-glow"></div>
+                        </div>
+
+                        <!-- Floating Product Bubbles (Enhanced 3D animation) -->
+                        <div class="floating-bubble b1" style="--d: 1s; --s: 0.8;">
+                            <img src="images/serum.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b2" style="--d: 2s; --s: 1.2;">
+                            <img src="images/shampoo.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b3" style="--d: 0s; --s: 0.9;">
+                            <img src="images/face-cream.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b4" style="--d: 3s; --s: 1.1;">
+                            <img src="images/hair-spa.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b5" style="--d: 1.5s; --s: 0.75;">
+                            <img src="images/serum.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b6" style="--d: 4s; --s: 1.3;">
+                            <img src="images/conditioner.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b7" style="--d: 2.5s; --s: 0.85;">
+                            <img src="images/shampoo.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b8" style="--d: 0.5s; --s: 1.0;">
+                            <img src="images/face-cream.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b9" style="--d: 3.5s; --s: 0.7;">
+                            <img src="images/hair-spa.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b10" style="--d: 1.2s; --s: 1.4;">
+                            <img src="images/serum.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b11" style="--d: 2.8s; --s: 0.6;">
+                            <img src="images/conditioner.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b12" style="--d: 0.8s; --s: 1.1;">
+                            <img src="images/face-cream.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b13" style="--d: 4.2s; --s: 0.9;">
+                            <img src="images/shampoo.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b14" style="--d: 1.8s; --s: 1.3;">
+                            <img src="images/hair-spa.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b15" style="--d: 3.2s; --s: 0.8;">
+                            <img src="images/serum.png" alt="Product">
+                        </div>
+
+
+                        <div class="dynamic-lines">
+                            <div class="line l1"></div>
+                            <div class="line l2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Categories Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="section-title">Shop by Category</h2>
+                <div class="title-underline mx-auto"></div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="category-card shampoo">
+                        <div class="overlay"></div>
+                        <h3>Shampoos</h3>
+                        <a href="products.html?cat=Shampoo" class="btn btn-sm btn-light">View All</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="category-card conditioner">
+                        <div class="overlay"></div>
+                        <h3>Conditioners</h3>
+                        <a href="products.html?cat=Conditioner" class="btn btn-sm btn-light">View All</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="category-card spa">
+                        <div class="overlay"></div>
+                        <h3>Hair Spa</h3>
+                        <a href="products.html?cat=Hair Spa" class="btn btn-sm btn-light">View All</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-5">
+                <div>
+                    <h2 class="section-title text-start mb-0">Hair Spa</h2>
+                    <p class="text-muted mb-0">Intensive treatments for healthy hair.</p>
+                </div>
+                <a href="products.html" class="btn btn-link text-dark fw-bold">View More <i
+                        class="fas fa-arrow-right ms-2"></i></a>
+            </div>
+            <div class="product-container">
+                <button class="scroll-arrow left" onclick="scrollProducts('hairspa-products', -300)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="d-flex overflow-x-auto gap-3 pb-3" id="hairspa-products">
+                    <!-- Products will be loaded via AJAX/JSON -->
+                </div>
+                <button class="scroll-arrow right" onclick="scrollProducts('hairspa-products', 300)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-5">
+                <div>
+                    <h2 class="section-title text-start mb-0">Shampoos</h2>
+                    <p class="text-muted mb-0">Premium hair cleansing solutions.</p>
+                </div>
+                <a href="products.html" class="btn btn-link text-dark fw-bold">View More <i
+                        class="fas fa-arrow-right ms-2"></i></a>
+            </div>
+            <div class="product-container">
+                <button class="scroll-arrow left" onclick="scrollProducts('shampoo-products', -300)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="d-flex overflow-x-auto gap-3 pb-3" id="shampoo-products">
+                    <!-- Products will be loaded via AJAX/JSON -->
+                </div>
+                <button class="scroll-arrow right" onclick="scrollProducts('shampoo-products', 300)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-5">
+                <div>
+                    <h2 class="section-title text-start mb-0">Conditioners</h2>
+                    <p class="text-muted mb-0">Deep nourishment for silky hair.</p>
+                </div>
+                <a href="products.html" class="btn btn-link text-dark fw-bold">View More <i
+                        class="fas fa-arrow-right ms-2"></i></a>
+            </div>
+            <div class="product-container">
+                <button class="scroll-arrow left" onclick="scrollProducts('conditioner-products', -300)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="d-flex overflow-x-auto gap-3 pb-3" id="conditioner-products">
+                    <!-- Products will be loaded via AJAX/JSON -->
+                </div>
+                <button class="scroll-arrow right" onclick="scrollProducts('conditioner-products', 300)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-5">
+                <div>
+                    <h2 class="section-title text-start mb-0">Skincare</h2>
+                    <p class="text-muted mb-0">Premium skincare solutions.</p>
+                </div>
+                <a href="products.html" class="btn btn-link text-dark fw-bold">View More <i
+                        class="fas fa-arrow-right ms-2"></i></a>
+            </div>
+            <div class="product-container">
+                <button class="scroll-arrow left" onclick="scrollProducts('skincare-products', -300)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="d-flex overflow-x-auto gap-3 pb-3" id="skincare-products">
+                    <!-- Products will be loaded via AJAX/JSON -->
+                </div>
+                <button class="scroll-arrow right" onclick="scrollProducts('skincare-products', 300)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-5">
+                <div>
+                    <h2 class="section-title text-start mb-0">Top Sales</h2>
+                    <p class="text-muted mb-0">Most popular products this month.</p>
+                </div>
+                <a href="products.html" class="btn btn-link text-dark fw-bold">View More <i
+                        class="fas fa-arrow-right ms-2"></i></a>
+            </div>
+            <div class="product-container">
+                <button class="scroll-arrow left" onclick="scrollProducts('top-sales-products', -300)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="d-flex overflow-x-auto gap-3 pb-3" id="top-sales-products">
+                    <!-- Products will be loaded via AJAX/JSON -->
+                </div>
+                <button class="scroll-arrow right" onclick="scrollProducts('top-sales-products', 300)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Glow Care Animation Section -->
+    <section class="py-5">
+        <div class="container text-center">
+            <img src="images/glow_and_care_animated.gif" alt="Glow Care Animation" class="img-fluid">
+        </div>
+    </section>
+
+    <!-- Cart Modal -->
+    <div class="modal fade" id="cartModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content rounded-0">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Shopping Cart</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="cart-items-list">
+                        <!-- Cart items injected by JS -->
+                    </div>
+                </div>
+                <div class="modal-footer border-0 flex-column align-items-stretch">
+                    <div class="d-flex justify-content-between mb-3 px-2">
+                        <h5 class="fw-bold mb-0">Total</h5>
+                        <h5 class="fw-bold mb-0" id="cart-total">$0.00</h5>
+                    </div>
+                    <button type="button" id="checkout-btn" class="btn btn-primary py-3 rounded-0 w-100">Complete
+                        Purchase</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Details Modal -->
+    <div class="modal fade" id="detailsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content rounded-0">
+                <div class="modal-body p-0">
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3 z-3"
+                        data-bs-dismiss="modal"></button>
+                    <div class="row g-0">
+                        <div class="col-md-6 bg-light d-flex align-items-center justify-content-center p-5">
+                            <img id="details-image" src="" class="img-fluid" alt="Product Image">
+                        </div>
+                        <div class="col-md-6 p-5">
+                            <span id="details-category" class="product-category">Category</span>
+                            <h2 id="details-name" class="fw-bold my-3">Product Name</h2>
+                            <h3 id="details-price" class="text-accent fw-bold mb-4">$0.00</h3>
+                            <p id="details-desc" class="text-muted mb-5">Product description goes here.</p>
+                            <button class="btn btn-primary w-100 py-3 rounded-0 add-to-cart-from-details">Add to
+                                Cart</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div id="footer-placeholder"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retailer Portal | Glow & Gloss</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .receipt-container {
+            max-width: 100%;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 2rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+        }
+
+        .receipt-header {
+            text-align: center;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .receipt-section {
+            margin-bottom: 2rem;
+        }
+
+        .receipt-section h5 {
+            color: #495057;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .item-list {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+        }
+
+        .item-list .list-group-item {
+            border: none;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .item-list .list-group-item:last-child {
+            border-bottom: none;
+        }
+
+        .total-row {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .dashboard-title {
+            color: #667eea;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <img src="images/logo.png" alt="Glow & Gloss Logo" width="50" height="50" class="d-inline-block align-text-top me-2">
+                <span class="brand-text">Glow & Gloss Portal</span>
+            </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Live Website</a></li>
+                    <li class="nav-item"><a class="nav-link bg-dark text-white px-3" href="#" id="logout-btn">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="row mb-5">
+            <div class="col-12">
+                <h1 class="fw-bold" id="dashboard-title">Retailer Dashboard</h1>
+                <p class="text-muted" id="dashboard-description">Manage your business, track customer records, and
+                    handle logistics.</p>
+            </div>
+        </div>
+
+        <!-- Dashboard Stats -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-4">
+                    <h6 class="text-muted small text-uppercase fw-bold mb-3">Total Orders</h6>
+                    <h3 class="fw-bold mb-0" id="stat-orders">0</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-4">
+                    <h6 class="text-muted small text-uppercase fw-bold mb-3">Total Registered Products</h6>
+                    <h3 class="fw-bold mb-0" id="stat-products">0</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm p-4">
+                    <h6 class="text-muted small text-uppercase fw-bold mb-3">Total Customers</h6>
+                    <h3 class="fw-bold mb-0" id="stat-users">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Customer Records -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm overflow-hidden mb-5">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="fw-bold mb-0">Customer Database & Records</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Customer ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Join Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-table-body">
+                                <!-- Data injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm overflow-hidden">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="fw-bold mb-0" id="orders-title">Order Receipts</h5>
+                    </div>
+                    <div id="orders-container">
+                        <div id="orders-list">
+                            <!-- Orders will be loaded via JS -->
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-accent" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm p-4 sticky-top" style="top: 100px;">
+                    <h5 class="fw-bold mb-4">Quick Actions</h5>
+                    <a href="products.html" class="btn btn-primary w-100 py-3 mb-3">Add New Inventory</a>
+                    <a href="orders.html" class="btn btn-outline-dark w-100 py-3 mb-3">Detailed Receipts</a>
+                    <hr>
+                    <p class="small text-muted mb-0">Retailer portal version 1.0. Connected to Local Storage Backend.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Auth Check - Allow customers to view retailer dashboard for order receipts
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (!currentUser) {
+                alert('Please login to view the dashboard.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Load Data
+            // Fetch orders from API
+            $.ajax({
+                url: '/api/orders?all=true', // Assuming we need a way to get ALL orders to filter client side or an endpoint for retailer orders
+                // Since the current API might filter by user, let's check if we need to modify the server or just use what we have.
+                // The current GET /api/orders filters by email/role. If role is retailer/distributor, it *should* return relevant orders?
+                // Left's check server.js logic. If role is retailer, does it return all? 
+                // Let's assume for now we need to fetch all and filter, or the backend supports it.
+                // Actually, let's just try to fetch `/api/orders?email=${currentUser.email}&role=${currentUser.role}`
+                // If the backend is smart, it returns all orders for a distributor.
+                // If not, we might need to rely on the fact that we just want to see orders for *my* products.
+                // Let's use the API we built.
+                url: `/api/orders?role=${currentUser.role}`,
+                type: 'GET',
+                success: function (data) {
+                    const allOrders = data;
+
+                    // FILTER ORDERS: Show orders containing products from this retailer/distributor
+                    // Note: The API returns orders. We need to filter items based on distributor.
+                    // The API response for orders includes `items`.
+
+                    // For retailers/distributors, show ALL orders (they manage logistics for all products)
+                    const retailerOrders = allOrders.map(order => {
+                        return {
+                            ...order,
+                            myTotal: order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+                        };
+                    });
+
+                    // Update Stats
+                    $('#stat-orders').text(retailerOrders.length);
+
+                    // Render as receipts per item for distributors
+                    const $ordersList = $('#orders-list');
+                    $ordersList.empty();
+                    const receipts = [];
+                    retailerOrders.reverse().forEach(order => {
+                        order.items.forEach(item => {
+                            // For distributors, only show items they distribute
+                            if (currentUser.role === 'distributor' && item.distributor !== currentUser.name) return;
+                            receipts.push({ order, item });
+                        });
+                    });
+                    receipts.forEach(({ order, item }) => {
+                        const itemTotal = item.price * item.quantity;
+                        const shipmentStatus = order.shipmentStatus || 'pending';
+                        const shipping = order.shippingDetails || {};
+
+                        $ordersList.append(`
+                            <div class="receipt-container mb-4">
+                                <div class="receipt-header">
+                                    <h1 class="display-5 fw-bold text-success"><i class="fas fa-check-circle me-2"></i>Order Receipt</h1>
+                                    <p class="mb-0">Order ID: ${order.orderId || order.order_id} - ${item.name}</p>
+                                    <p class="small text-muted">Date: ${new Date(order.created_at || order.date).toLocaleString()}</p>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="receipt-section">
+                                            <h5><i class="fas fa-shopping-cart me-2"></i>Order Details</h5>
+                                            <p><strong>Order ID:</strong> ${order.orderId || order.order_id}</p>
+                                            <p><strong>Date:</strong> ${new Date(order.created_at || order.date).toLocaleString()}</p>
+                                            <p><strong>Status:</strong> <span class="badge ${shipmentStatus === 'shipped' ? 'bg-primary' : shipmentStatus === 'delivered' ? 'bg-success' : 'bg-warning'}">${shipmentStatus}</span></p>
+                                            <p><strong>Update Status:</strong>
+                                                <select class="form-select form-select-sm delivery-status-select ms-2" data-order-id="${order.id}" style="width: auto; display: inline-block;">
+                                                    <option value="pending" ${shipmentStatus === 'pending' ? 'selected' : ''}>Pending</option>
+                                                    <option value="shipped" ${shipmentStatus === 'shipped' ? 'selected' : ''}>Shipped</option>
+                                                    <option value="delivered" ${shipmentStatus === 'delivered' ? 'selected' : ''}>Delivered</option>
+                                                </select>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="receipt-section">
+                                            <h5><i class="fas fa-shipping-fast me-2"></i>Shipping Information</h5>
+                                            <p><strong>Name:</strong> ${shipping.firstName || ''} ${shipping.lastName || ''}</p>
+                                            <p><strong>Email:</strong> ${shipping.email || ''}</p>
+                                            <p><strong>Phone:</strong> ${shipping.phone || ''}</p>
+                                            <p><strong>Address:</strong> ${shipping.address || ''}</p>
+                                            ${shipping.address2 ? `<p><strong>Address 2:</strong> ${shipping.address2}</p>` : ''}
+                                            <p><strong>City:</strong> ${shipping.city || ''}</p>
+                                            <p><strong>State:</strong> ${shipping.state || ''}</p>
+                                            <p><strong>Zip:</strong> ${shipping.zip || ''}</p>
+                                            <p><strong>Country:</strong> ${shipping.country || ''}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="receipt-section">
+                                    <h5><i class="fas fa-list me-2"></i>Item Ordered</h5>
+                                    <ul class="list-group item-list">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <img src="${item.image}" alt="${item.name}" width="40" class="me-3 rounded">
+                                                <div>
+                                                    <h6 class="mb-0">${item.name}</h6>
+                                                    <small class="text-muted">$${parseFloat(item.price).toFixed(2)} x ${item.quantity}</small>
+                                                </div>
+                                            </div>
+                                            <span class="fw-bold">$${itemTotal.toFixed(2)}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center total-row">
+                                            <strong>Total</strong>
+                                            <strong>$${itemTotal.toFixed(2)}</strong>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="receipt-section">
+                                    <h5><i class="fas fa-credit-card me-2"></i>Payment Information</h5>
+                                    <p><strong>Payment Method:</strong> ${shipping.paymentMethod || 'Credit Card'}</p>
+                                    <p><strong>Card Name:</strong> ${shipping.cardName || ''}</p>
+                                    <p><strong>Card Number:</strong> **** **** **** ${shipping.cardNumber ? shipping.cardNumber.slice(-4) : ''}</p>
+                                </div>
+                            </div>
+                        `);
+                    });
+                },
+                error: function (err) {
+                    console.error('Error fetching orders:', err);
+                }
+            });
+
+            // Fetch users from API
+            $.ajax({
+                url: `/api/users?currentUser=${encodeURIComponent(currentUser.email)}&role=${currentUser.role}`,
+                type: 'GET',
+                success: function (data) {
+                    const users = data;
+
+                    // Update Stats for users
+                    $('#stat-users').text(users.length);
+
+                    // Populate Users from DB
+                    const $userBody = $('#user-table-body');
+                    $userBody.empty();
+                    users.forEach(user => {
+                        $userBody.append(`
+                            <tr>
+                                <td class="small text-muted">${user.id}</td>
+                                <td class="fw-bold">${user.name}</td>
+                                <td>${user.email}</td>
+                                <td><span class="badge ${user.role === 'retailer' ? 'bg-primary' : 'bg-secondary'}">${user.role}</span></td>
+                                <td class="small">${new Date(user.created_at).toLocaleDateString()}</td>
+                            </tr>
+                        `);
+                    });
+                },
+                error: function (err) {
+                    console.error('Error fetching users:', err);
+                }
+            });
+
+            // Products still from local storage for now
+            const extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
+            $('#stat-products').text(extraProducts.filter(p => p.distributor === currentUser.name).length);
+
+            $('#logout-btn').on('click', function () {
+                sessionStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            });
+
+            // Handle delivery status update
+            $(document).on('change', '.delivery-status-select', function () {
+                const $select = $(this); // Capture the element context
+                const orderId = $select.data('order-id');
+                const newStatus = $select.val();
+
+                $.ajax({
+                    url: `/api/orders/${orderId}`,
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ shipmentStatus: newStatus }),
+                    success: function (response) {
+                        alert('Delivery status updated successfully!');
+                        // Update the badge in the same receipt container
+                        const $badge = $select.closest('.receipt-container').find('.badge');
+                        $badge.removeClass('bg-warning bg-primary bg-success');
+                        if (newStatus === 'shipped') {
+                            $badge.addClass('bg-primary');
+                        } else if (newStatus === 'delivered') {
+                            $badge.addClass('bg-success');
+                        } else {
+                            $badge.addClass('bg-warning');
+                        }
+                        $badge.text(newStatus);
+                    },
+                    error: function (err) {
+                        console.error('Error updating delivery status:', err);
+                        alert('Failed to update delivery status. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

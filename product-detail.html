@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details | Glow & Gloss</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .sidebar .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+        }
+
+        .sidebar .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .sidebar .brand span {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .sidebar-toggle {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .content {
+                margin-left: 0;
+            }
+
+            .sidebar-toggle {
+                display: block;
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                z-index: 1001;
+                background: #667eea;
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 5px;
+            }
+        }
+
+        .nav-section {
+            margin-bottom: 20px;
+        }
+
+        .nav-section h6 {
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .product-detail-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .product-image {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-info {
+            padding: 2rem;
+        }
+
+        .product-category {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .product-name {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .product-price {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 2rem;
+        }
+
+        .product-description {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .add-to-cart-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .add-to-cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .back-btn {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .back-btn:hover {
+            color: #764ba2;
+        }
+
+        .back-btn i {
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar">
+        <div class="brand">
+            <span>Glow & Gloss</span>
+        </div>
+        <div class="nav flex-column">
+            <a href="index.html" class="nav-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="products.html" class="nav-link">
+                <i class="fas fa-box-open"></i> Products
+            </a>
+            <a href="orders.html" class="nav-link">
+                <i class="fas fa-shopping-bag"></i> My Orders
+            </a>
+            <a href="retailer-dashboard.html" class="nav-link">
+                <i class="fas fa-chart-line"></i> Retailer Portal
+            </a>
+            <a href="about.html" class="nav-link">
+                <i class="fas fa-info-circle"></i> About
+            </a>
+        </div>
+        <div class="nav-section mt-4">
+            <h6>Account</h6>
+            <div><a href="login.html" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a></div>
+            <div><a href="register.html" class="nav-link"><i class="fas fa-user-plus"></i> Register</a></div>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+            <div class="container">
+                <a class="navbar-brand" href="index.html">
+                    <span class="brand-text">Glow & Gloss</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="d-none d-lg-block mx-auto" style="width: 300px;">
+                    <form id="nav-search-form" class="position-relative">
+                        <input type="text" id="nav-search-input"
+                            class="form-control rounded-pill bg-light border-0 ps-4" placeholder="Search brands...">
+                        <button type="submit"
+                            class="position-absolute top-50 end-0 translate-middle-y border-0 bg-transparent pe-3 text-muted">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="products.html">Products</a></li>
+                        <li class="nav-item"><a class="nav-link" href="orders.html">My Orders</a></li>
+                        <li class="nav-item"><a class="nav-link" href="retailer-dashboard.html">Retailer Portal</a></li>
+                        <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                        <li class="nav-item position-relative me-3">
+                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#cartModal">
+                                <i class="fas fa-shopping-cart fs-5"></i>
+                                <span
+                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-count"
+                                    style="font-size: 0.6rem;">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link btn btn-outline-dark ms-lg-3 px-4"
+                                href="login.html">Login</a></li>
+                        <li class="nav-item"><a class="nav-link btn btn-outline-dark ms-lg-2 px-4 mt-2 mt-lg-0"
+                                href="register.html">Register</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Product Detail Section -->
+        <section class="py-5">
+            <div class="container product-detail-container">
+                <a href="products.html" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Products
+                </a>
+                <div class="row g-5">
+                    <div class="col-lg-6">
+                        <img id="product-image" src="" alt="Product Image" class="product-image">
+                    </div>
+                    <div class="col-lg-6 product-info">
+                        <span id="product-category" class="product-category">Category</span>
+                        <h1 id="product-name" class="product-name">Product Name</h1>
+                        <div id="product-price" class="product-price">$0.00</div>
+                        <p id="product-description" class="product-description">Product description goes here.</p>
+                        <p id="product-distributor" class="product-distributor">Distributed by: </p>
+                        <button id="add-to-cart-btn" class="btn add-to-cart-btn">
+                            <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cart Modal -->
+        <div class="modal fade" id="cartModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content rounded-0">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title fw-bold">Shopping Cart</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="cart-items-list">
+                            <!-- Cart items injected by JS -->
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 flex-column align-items-stretch">
+                        <div class="d-flex justify-content-between mb-3 px-2">
+                            <h5 class="fw-bold mb-0">Total</h5>
+                            <h5 class="fw-bold mb-0" id="cart-total">$0.00</h5>
+                        </div>
+                        <button type="button" id="checkout-btn" class="btn btn-primary py-3 rounded-0 w-100">Complete
+                            Purchase</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div id="footer-placeholder"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Get product ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+
+            if (!productId) {
+                alert('Product not found!');
+                window.location.href = 'products.html';
+                return;
+            }
+
+            // Load product data
+            loadProductDetail(productId);
+
+            // Add to cart functionality for this page
+            $(document).on('click', '#add-to-cart-btn', function () {
+                const id = $(this).data('id');
+                const name = $(this).data('name');
+                const price = parseFloat($(this).data('price')); // Force float
+                const image = $(this).data('image');
+                const distributor = $(this).data('distributor');
+
+                let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                const existingItem = cart.find(item => item.id === id);
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({ id, name, price, image, distributor, quantity: 1 });
+                }
+
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartCount();
+                alert(`Added ${name} to cart!`);
+            });
+        });
+
+        function loadProductDetail(productId) {
+            $.ajax({
+                url: '/api/products', // Use API
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    const extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
+                    const allProducts = [...data, ...extraProducts];
+                    const product = allProducts.find(p => p.id == productId || p.id === productId);
+
+                    if (!product) {
+                        alert('Product not found!');
+                        window.location.href = 'products.html';
+                        return;
+                    }
+
+                    // Populate product details
+                    $('#product-image').attr('src', product.image);
+                    $('#product-name').text(product.name);
+                    $('#product-price').text('$' + parseFloat(product.price).toFixed(2));
+                    $('#product-description').text(product.description);
+                    $('#product-category').text(product.category);
+                    $('#product-distributor').text('Distributed by: ' + (product.distributor || 'Main Warehouse'));
+
+                    // Store data for add to cart
+                    $('#add-to-cart-btn').data('id', product.id);
+                    $('#add-to-cart-btn').data('name', product.name);
+                    $('#add-to-cart-btn').data('price', parseFloat(product.price));
+                    $('#add-to-cart-btn').data('image', product.image);
+                    $('#add-to-cart-btn').data('distributor', product.distributor || 'Main Warehouse');
+
+                    // Check if user is retailer
+                    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+                    if (currentUser && currentUser.role === 'retailer') {
+                        $('#add-to-cart-btn').hide();
+                    }
+                },
+                error: function (err) {
+                    console.error('Error loading product:', err);
+                    alert('Error loading product details!');
+                    window.location.href = 'products.html';
+                }
+            });
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            $('.cart-count').text(count);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,272 @@
+[
+  {
+    "id": 1,
+    "name": "Silk Shine Shampoo",
+    "category": "Shampoo",
+    "price": 25.0,
+    "description": "Lathers beautifully to leave your hair silken and shiny.",
+    "image": "images/shampoo.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 2,
+    "name": "Velvet Smooth Conditioner",
+    "category": "Conditioner",
+    "price": 22.0,
+    "description": "Provides deep nourishment for a velvet-smooth finish.",
+    "image": "images/conditioner.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 3,
+    "name": "Deep Repair Hair Spa",
+    "category": "Hair Spa",
+    "price": 45.0,
+    "description": "Intensive repair mask for damaged and dry hair.",
+    "image": "images/hair-spa.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 4,
+    "name": "Radiant Glow Face Cream",
+    "category": "Skincare",
+    "price": 35.0,
+    "description": "Hydrating face cream for a radiant, healthy glow.",
+    "image": "images/face-cream.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 5,
+    "name": "Golden Hour Serum",
+    "category": "Skincare",
+    "price": 50.0,
+    "description": "Concentrated serum to brighten and rejuvenate your skin.",
+    "image": "images/serum.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 6,
+    "name": "Herbal Essence Shampoo",
+    "category": "Shampoo",
+    "price": 20.0,
+    "description": "Natural herbal extracts for gentle cleansing.",
+    "image": "images/shampoo.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 7,
+    "name": "Hydrating Conditioner",
+    "category": "Conditioner",
+    "price": 24.0,
+    "description": "Intense hydration for all hair types.",
+    "image": "images/conditioner.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 8,
+    "name": "Keratin Treatment Spa",
+    "category": "Hair Spa",
+    "price": 55.0,
+    "description": "Professional keratin treatment for smooth hair.",
+    "image": "images/hair-spa.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 9,
+    "name": "Vitamin C Face Serum",
+    "category": "Skincare",
+    "price": 40.0,
+    "description": "Brightening serum with vitamin C.",
+    "image": "images/serum.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 10,
+    "name": "Anti-Aging Night Cream",
+    "category": "Skincare",
+    "price": 60.0,
+    "description": "Overnight repair and anti-aging formula.",
+    "image": "images/face-cream.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 11,
+    "name": "Color Protect Shampoo",
+    "category": "Shampoo",
+    "price": 28.0,
+    "description": "Specially formulated for colored hair.",
+    "image": "images/shampoo.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 12,
+    "name": "Leave-In Conditioner",
+    "category": "Conditioner",
+    "price": 18.0,
+    "description": "Daily leave-in treatment for soft hair.",
+    "image": "images/conditioner.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 13,
+    "name": "Scalp Treatment Oil",
+    "category": "Hair Spa",
+    "price": 32.0,
+    "description": "Nourishing oil for scalp health.",
+    "image": "images/hair-spa.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 14,
+    "name": "Hydrating Face Mask",
+    "category": "Skincare",
+    "price": 22.0,
+    "description": "Deep hydration mask for dry skin.",
+    "image": "images/face-cream.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 15,
+    "name": "Retinol Eye Cream",
+    "category": "Skincare",
+    "price": 45.0,
+    "description": "Targeted treatment for under-eye area.",
+    "image": "images/serum.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 16,
+    "name": "Dry Shampoo",
+    "category": "Shampoo",
+    "price": 16.0,
+    "description": "Quick refresh for hair between washes.",
+    "image": "images/shampoo.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 17,
+    "name": "Heat Protect Spray",
+    "category": "Conditioner",
+    "price": 19.0,
+    "description": "Shield hair from heat styling damage.",
+    "image": "images/conditioner.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 18,
+    "name": "Biotin Hair Growth Serum",
+    "category": "Hair Spa",
+    "price": 38.0,
+    "description": "Promote healthy hair growth.",
+    "image": "images/hair-spa.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 19,
+    "name": "Exfoliating Face Scrub",
+    "category": "Skincare",
+    "price": 26.0,
+    "description": "Gentle exfoliation for smooth skin.",
+    "image": "images/face-cream.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 20,
+    "name": "Hyaluronic Acid Moisturizer",
+    "category": "Skincare",
+    "price": 42.0,
+    "description": "Intense hydration with hyaluronic acid.",
+    "image": "images/serum.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 21,
+    "name": "Cucumber Cooling Gel",
+    "category": "Skincare",
+    "price": 30.0,
+    "description": "Soothing gel for tired skin.",
+    "image": "images/face-cream.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 22,
+    "name": "Protein Repair Shampoo",
+    "category": "Shampoo",
+    "price": 26.0,
+    "description": "Strengthens damaged hair with protein.",
+    "image": "images/shampoo.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 23,
+    "name": "Silicone-Free Conditioner",
+    "category": "Conditioner",
+    "price": 23.0,
+    "description": "Natural conditioner without silicones.",
+    "image": "images/conditioner.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 24,
+    "name": "Collagen Boost Serum",
+    "category": "Skincare",
+    "price": 48.0,
+    "description": "Anti-aging serum with collagen.",
+    "image": "images/serum.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 25,
+    "name": "Scalp Soothing Treatment",
+    "category": "Hair Spa",
+    "price": 35.0,
+    "description": "Calms irritated scalp.",
+    "image": "images/hair-spa.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 101,
+    "name": "Rosewater Mist",
+    "category": "Skincare",
+    "price": 18.0,
+    "description": "Refreshing facial mist.",
+    "image": "images/serum.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 102,
+    "name": "Argan Hair Oil",
+    "category": "Hair Spa",
+    "price": 28.0,
+    "description": "Nourishing oil.",
+    "image": "images/hair-spa.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 103,
+    "name": "Clay Detox Mask",
+    "category": "Skincare",
+    "price": 24.0,
+    "description": "Deep cleaning mask.",
+    "image": "images/face-cream.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 104,
+    "name": "Volumizing Mousse",
+    "category": "Shampoo",
+    "price": 15.0,
+    "description": "Lightweight volume.",
+    "image": "images/shampoo.png",
+    "distributor": "Main Warehouse"
+  },
+  {
+    "id": 105,
+    "name": "Moisture Lock Balm",
+    "category": "Skincare",
+    "price": 12.0,
+    "description": "24h hydration.",
+    "image": "images/conditioner.png",
+    "distributor": "Main Warehouse"
+  }
+]
