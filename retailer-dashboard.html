@@ -331,20 +331,9 @@
                 }
             });
 
-            // Fetch products from API to show correct count from database
-            $.ajax({
-                url: window.API.products,
-                type: 'GET',
-                success: function (products) {
-                    const myProducts = products.filter(p => p.distributor === currentUser.name);
-                    $('#stat-products').text(myProducts.length);
-                },
-                error: function (err) {
-                    console.error('Error fetching products:', err);
-                    const extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
-                    $('#stat-products').text(extraProducts.filter(p => p.distributor === currentUser.name).length);
-                }
-            });
+            // Products still from local storage for now
+            const extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
+            $('#stat-products').text(extraProducts.filter(p => p.distributor === currentUser.name).length);
 
             $('#logout-btn').on('click', function () {
                 sessionStorage.removeItem('currentUser');

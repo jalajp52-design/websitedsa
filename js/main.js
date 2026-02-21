@@ -1,24 +1,6 @@
-// Scroll products function - Global scope
-window.scrollProducts = function (containerId, amount) {
-    const container = document.getElementById(containerId);
-    if (container) {
-        container.scrollBy({
-            left: amount,
-            behavior: 'smooth'
-        });
-    }
-};
-
 $(document).ready(function () {
     // Load common footer
     $('#footer-placeholder').load('footer.html');
-
-    // Force Video Autoplay
-    const video = document.getElementById('heroVideo');
-    if (video) {
-        video.muted = true; // Ensure muted for autoplay
-        video.play().catch(e => console.log("Video autoplay blocked:", e));
-    }
 
     // Sidebar Toggle
     $('.sidebar-toggle').on('click', function () {
@@ -95,23 +77,11 @@ $(document).ready(function () {
         // Show retailer-specific elements
         if (isRetailer) {
             $('.btn[data-bs-target="#addModal"]').show();
-            $('.navbar-nav .nav-link[href="retailer-dashboard.html"]').closest('li').show();
-            $('.sidebar .nav-link[href="retailer-dashboard.html"]').show();
-        } else {
-            // Hide retailer elements for customers
-            $('.btn[data-bs-target="#addModal"]').hide();
-            $('.navbar-nav .nav-link[href="retailer-dashboard.html"]').closest('li').hide();
-            $('.sidebar .nav-link[href="retailer-dashboard.html"]').hide();
         }
     } else {
         // Hide retailer-specific elements when not logged in
-        // Use specific selectors to avoid hiding entire sidebar sections
-        $('.navbar-nav .nav-link[href="orders.html"]').closest('li').hide();
-        $('.sidebar .nav-link[href="orders.html"]').hide();
-        
-        $('.navbar-nav .nav-link[href="retailer-dashboard.html"]').closest('li').hide();
-        $('.sidebar .nav-link[href="retailer-dashboard.html"]').hide();
-
+        $('.nav-link[href="orders.html"]').parent().hide();
+        $('.nav-link[href="retailer-dashboard.html"]').parent().hide();
         $('.btn[data-bs-target="#addModal"]').hide();
     }
 
@@ -137,9 +107,6 @@ $(document).ready(function () {
         $('#search-input').val(searchQuery).trigger('keyup');
     }
 
-    // Show page loading overlay
-    $('body').append('<div class="page-loading"><div class="spinner"></div></div>');
-
     // Load Category Products on Home Page
     if ($('#shampoo-products').length > 0) {
         loadProductsByCategory('Shampoo', '#shampoo-products');
@@ -161,13 +128,6 @@ $(document).ready(function () {
     if ($('#all-products').length > 0) {
         loadProducts(null, '#all-products');
     }
-
-    // Remove page loading overlay after initial load
-    setTimeout(() => {
-        $('.page-loading').fadeOut(300, function() {
-            $(this).remove();
-        });
-    }, 1000);
 
     // Search Functionality
     $('#search-input').on('keyup', function () {
@@ -268,7 +228,7 @@ $(document).ready(function () {
     // Insertion Form
     $('#insertion-form').on('submit', function (e) {
         e.preventDefault();
-
+        console.log("Form submission triggered");
 
         if (!validateForm(this)) {
             alert('Please fill out all required fields correctly.');
@@ -301,6 +261,7 @@ $(document).ready(function () {
 
         function saveProduct(imageData) {
             const newItem = {
+                id: 'extra-' + Date.now(),
                 name: $('#item-name').val(),
                 category: $('#item-category').val(),
                 price: parseFloat($('#item-price').val()),
@@ -309,40 +270,21 @@ $(document).ready(function () {
                 distributor: currentUser.name // Track which distributor added the product
             };
 
-            // Save to server database
-            fetch(window.API.products, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newItem)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    // Also save locally for immediate display
-                    let extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
-                    const localItem = { ...newItem, id: data.productId };
-                    extraProducts.push(localItem);
-                    localStorage.setItem('extraProducts', JSON.stringify(extraProducts));
+            let extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
+            extraProducts.push(newItem);
+            localStorage.setItem('extraProducts', JSON.stringify(extraProducts));
 
-                    alert('Success! Product added to inventory.');
-                    $('#addModal').modal('hide');
-                    $('#insertion-form')[0].reset();
+            alert('Success! Product added to inventory.');
+            $('#addModal').modal('hide');
+            $('#insertion-form')[0].reset();
 
-                    // Immediately refresh the product list without page reload
-                    if ($('#all-products').length > 0) {
-                        loadProducts(null, '#all-products');
-                    }
-                    if ($('#featured-products').length > 0) {
-                        loadProducts(6, '#featured-products');
-                    }
-                } else {
-                    alert('Error adding product: ' + (data.error || 'Unknown error'));
-                }
-            })
-            .catch(err => {
-                console.error('Error saving product:', err);
-                alert('Error saving product. Please try again.');
-            });
+            // Immediately refresh the product list without page reload
+            if ($('#all-products').length > 0) {
+                loadProducts(null, '#all-products');
+            }
+            if ($('#featured-products').length > 0) {
+                loadProducts(6, '#featured-products');
+            }
         }
     });
 
@@ -399,12 +341,7 @@ $(document).ready(function () {
     }
 
     function calculateTotal() {
-        const total = cart.reduce((sum, item) => {
-            const price = parseFloat(item.price) || 0;
-            const qty = parseInt(item.quantity) || 0;
-            return sum + (price * qty);
-        }, 0);
-        return total;
+        return cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
     }
 
     function renderCart() {
@@ -480,11 +417,11 @@ $(document).ready(function () {
     });
 
     // Scroll products function
-    window.scrollProducts = function (containerId, amount) {
+    window.scrollProducts = function (containerId, scrollAmount) {
         const container = document.getElementById(containerId);
         if (container) {
             container.scrollBy({
-                left: amount,
+                left: scrollAmount,
                 behavior: 'smooth'
             });
         }
@@ -497,21 +434,7 @@ $(document).ready(function () {
         renderOrders();
     }
 
-    function cleanupInvalidLocalOrders() {
-        // Remove local orders that don't have valid database IDs
-        const localOrders = JSON.parse(localStorage.getItem('localOrders') || '[]');
-        const validLocalOrders = localOrders.filter(order => order.id && !isNaN(order.id));
-
-        if (validLocalOrders.length !== localOrders.length) {
-            localStorage.setItem('localOrders', JSON.stringify(validLocalOrders));
-            console.log(`Cleaned up ${localOrders.length - validLocalOrders.length} invalid local orders`);
-        }
-    }
-
     async function renderOrders() {
-        // Clean up invalid local orders (those without database IDs)
-        cleanupInvalidLocalOrders();
-
         // Fetch orders from API instead of localStorage
         const urlParams = new URLSearchParams(window.location.search);
         let emailFromUrl = urlParams.get('email');
@@ -541,7 +464,7 @@ $(document).ready(function () {
         // Fallback: Check for locally stored orders to ensure immediate feedback and history
         const localOrders = JSON.parse(localStorage.getItem('localOrders') || '[]');
         const lastOrder = JSON.parse(localStorage.getItem('lastOrder'));
-
+        
         // Ensure lastOrder is in localOrders (migration/fallback)
         if (lastOrder && !localOrders.some(o => o.orderId === lastOrder.orderId)) {
             localOrders.push(lastOrder);
@@ -550,17 +473,14 @@ $(document).ready(function () {
         if (localOrders.length > 0) {
             // Ensure we are viewing the correct user's orders
             const userLocalOrders = localOrders.filter(o => !emailFromUrl || (o.user && o.user.toLowerCase() === emailFromUrl.toLowerCase()));
-
-            // Only include local orders that have valid database IDs (exclude invalid local orders)
-            const validLocalOrders = userLocalOrders.filter(localOrder => localOrder.id && !isNaN(localOrder.id));
-
-            validLocalOrders.forEach(localOrder => {
+            
+            userLocalOrders.forEach(localOrder => {
                 const exists = orders.some(o => o.orderId === localOrder.orderId);
                 if (!exists) {
                     orders.push(localOrder);
                 }
             });
-
+            
             // Re-sort all orders by date descending
             orders.sort((a, b) => new Date(b.date || b.created_at) - new Date(a.date || a.created_at));
         }
@@ -642,22 +562,12 @@ $(document).ready(function () {
                 </div>
             ` : '';
 
-            const canDelete = currentUser && order.id && !isNaN(order.id) && (
-                (currentUser.role === 'customer' && order.user.toLowerCase() === currentUser.email.toLowerCase()) ||
-                ((currentUser.role === 'distributor' || currentUser.role === 'retailer') && item.distributor === currentUser.name)
-            );
-
-            const deleteButton = canDelete ? `<button class="btn btn-sm btn-outline-danger delete-order-btn" data-order-id="${order.id}" title="Delete Order"><i class="fas fa-trash"></i></button>` : '';
-
             return `
                 <div class="card mb-4 shadow-sm">
                     <div class="card-header bg-primary text-white">
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">Order ${order.orderId} - ${item.name}</h5>
-                            <div class="d-flex align-items-center gap-2">
-                                ${statusBadge}
-                                ${deleteButton}
-                            </div>
+                            ${statusBadge}
                         </div>
                     </div>
                     <div class="card-body">
@@ -717,32 +627,6 @@ $(document).ready(function () {
     }
 
     function loadProducts(limit, containerId) {
-        const $container = $(containerId);
-        $container.empty();
-        
-        // Ensure container has row class for grid layout
-        if (!$container.hasClass('row')) $container.addClass('row');
-
-        // Add progress bar
-        $container.before('<div class="progress-container"><div class="progress-bar"></div></div>');
-
-        // Show skeleton loading
-        const skeletonCount = limit || 8;
-        for (let i = 0; i < skeletonCount; i++) {
-            $container.append(`
-                <div class="product-item col-6 col-sm-6 col-md-4 col-lg-3 mb-4">
-                    <div class="skeleton-card">
-                        <div class="skeleton skeleton-image"></div>
-                        <div class="p-3 text-center">
-                            <div class="skeleton skeleton-text short"></div>
-                            <div class="skeleton skeleton-text"></div>
-                            <div class="skeleton skeleton-text long"></div>
-                        </div>
-                    </div>
-                </div>
-            `);
-        }
-
         $.ajax({
             url: window.API.products, // Use API instead of static JSON
             type: 'GET',
@@ -752,6 +636,7 @@ $(document).ready(function () {
                 // extraProducts from local storage handling remains for "user added" items simulation
                 // or we could merge them. For now, let's keep the logic but source core data from DB.
                 const extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
+                console.log('Loaded products:', data.length, 'Extra products:', extraProducts.length);
                 const allData = [...data, ...extraProducts];
                 const displayData = limit ? allData.slice(0, limit) : allData;
 
@@ -763,8 +648,8 @@ $(document).ready(function () {
 
                     // Use the global isRetailer defined at the top
                     const $col = $(`
-                    <div class="product-item col-6 col-sm-6 col-md-4 col-lg-3 mb-4" data-category="${product.category}">
-                        <div class="product-card h-100">
+                    <div class="product-item" data-category="${product.category}" style="min-width: 200px; flex-shrink: 0;">
+                        <div class="product-card">
                             <div class="product-image-wrapper">
                                 <img src="${product.image}" alt="${product.name}" class="img-fluid">
                             </div>
@@ -804,9 +689,6 @@ $(document).ready(function () {
                     $container.append($col);
                 });
 
-                // Remove progress bar and show products
-                $container.prev('.progress-container').remove();
-
                 // Reapply current filter after loading products
                 const activeFilter = $('.filter-btn.active').data('filter');
                 if (activeFilter && activeFilter !== 'all') {
@@ -823,8 +705,9 @@ $(document).ready(function () {
                     dataType: 'json',
                     cache: false,
                     success: function (data) {
-                const extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
-                const allData = [...data, ...extraProducts];
+                        const extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
+                        console.log('Fallback: Loaded products from local JSON:', data.length, 'Extra products:', extraProducts.length);
+                        const allData = [...data, ...extraProducts];
                         const displayData = limit ? allData.slice(0, limit) : allData;
 
                         const $container = $(containerId);
@@ -832,8 +715,8 @@ $(document).ready(function () {
 
                         displayData.forEach(product => {
                             const $col = $(`
-                            <div class="product-item col-6 col-sm-6 col-md-4 col-lg-3 mb-4" data-category="${product.category}">
-                                <div class="product-card h-100">
+                            <div class="product-item" data-category="${product.category}" style="min-width: 200px; flex-shrink: 0;">
+                                <div class="product-card">
                                     <div class="product-image-wrapper">
                                         <img src="${product.image}" alt="${product.name}" class="img-fluid">
                                     </div>
@@ -901,16 +784,12 @@ $(document).ready(function () {
                 const categoryData = allData.filter(product => product.category === category);
 
                 const $container = $(containerId);
-                
-                // Force Grid Layout
-                // $container.removeClass('d-flex overflow-x-auto gap-3').addClass('row');
-                
                 $container.empty();
 
                 categoryData.forEach(product => {
                     const isGrid = $container.hasClass('product-grid');
                     const $card = $(`
-                        <div class="product-card scroll-animate h-100">
+                        <div class="product-card">
                             <div class="product-image-wrapper">
                                 <img src="${product.image}" alt="${product.name}" class="img-fluid">
                             </div>
@@ -943,9 +822,13 @@ $(document).ready(function () {
 
                     $btnContainer.append($viewDetailsBtn);
 
-                    const $col = $(`<div class="product-item" data-category="${product.category}"></div>`);
-                    $col.append($card.addClass('h-100'));
-                    $container.append($col);
+                    if (isGrid) {
+                        $container.append($card);
+                    } else {
+                        const $col = $(`<div class="product-item" data-category="${product.category}" style="min-width: 200px; flex-shrink: 0;"></div>`);
+                        $col.append($card);
+                        $container.append($col);
+                    }
                 });
             },
             error: function (err) {
@@ -963,16 +846,12 @@ $(document).ready(function () {
                         console.log('Fallback: Loaded products by category from local JSON:', categoryData.length);
 
                         const $container = $(containerId);
-                        
-                        // Force Grid Layout
-                        // $container.removeClass('d-flex overflow-x-auto gap-3').addClass('row');
-                        
                         $container.empty();
 
                         categoryData.forEach(product => {
                             const isGrid = $container.hasClass('product-grid');
                             const $card = $(`
-                                <div class="product-card h-100">
+                                <div class="product-card">
                                     <div class="product-image-wrapper">
                                         <img src="${product.image}" alt="${product.name}" class="img-fluid">
                                     </div>
@@ -1005,9 +884,13 @@ $(document).ready(function () {
 
                             $btnContainer.append($viewDetailsBtn);
 
-                            const $col = $(`<div class="product-item" data-category="${product.category}"></div>`);
-                            $col.append($card.addClass('h-100'));
-                            $container.append($col);
+                            if (isGrid) {
+                                $container.append($card);
+                            } else {
+                                const $col = $(`<div class="product-item" data-category="${product.category}" style="min-width: 200px; flex-shrink: 0;"></div>`);
+                                $col.append($card);
+                                $container.append($col);
+                            }
                         });
                     },
                     error: function (fallbackErr) {
@@ -1021,28 +904,6 @@ $(document).ready(function () {
     }
 
     function loadTopSales(containerId) {
-        const $container = $(containerId);
-        $container.empty();
-        
-        // Ensure container has row class for grid layout
-        // if (!$container.hasClass('row')) $container.addClass('row');
-
-        // Show skeleton loading
-        for (let i = 0; i < 4; i++) {
-            $container.append(`
-                <div>
-                <div class="skeleton-card h-100">
-                    <div class="skeleton skeleton-image"></div>
-                    <div class="p-3 text-center">
-                        <div class="skeleton skeleton-text short"></div>
-                        <div class="skeleton skeleton-text"></div>
-                        <div class="skeleton skeleton-text long"></div>
-                    </div>
-                </div>
-                </div>
-            `);
-        }
-
         $.ajax({
             url: window.API.products, // Use API
             type: 'GET',
@@ -1058,9 +919,8 @@ $(document).ready(function () {
                 $container.empty();
 
                 topSalesData.forEach(product => {
-                    const $wrapper = $(`<div></div>`);
                     const $card = $(`
-                        <div class="product-card scroll-animate h-100">
+                        <div class="product-card">
                             <div class="product-image-wrapper">
                                 <img src="${product.image}" alt="${product.name}" class="img-fluid">
                             </div>
@@ -1092,15 +952,8 @@ $(document).ready(function () {
                     const $viewDetailsBtn = $('<a class="btn btn-link btn-sm text-dark text-decoration-none mt-2 d-block mx-auto view-details" href="product-detail.html?id=' + product.id + '" target="_blank">View Details</a>');
 
                     $btnContainer.append($viewDetailsBtn);
-                    $wrapper.append($card);
-                    $container.append($wrapper);
+                    $container.append($card);
                 });
-
-                // Trigger custom event for animations
-                $(document).trigger('productsLoaded');
-
-                // Remove progress bar and show products
-                $container.prev('.progress-container').remove();
             },
             error: function (err) {
                 console.error('Error loading top sales products from API:', err);
@@ -1121,9 +974,8 @@ $(document).ready(function () {
                         $container.empty();
 
                         topSalesData.forEach(product => {
-                            const $wrapper = $(`<div></div>`);
                             const $card = $(`
-                                <div class="product-card h-100">
+                                <div class="product-card">
                                     <div class="product-image-wrapper">
                                         <img src="${product.image}" alt="${product.name}" class="img-fluid">
                                     </div>
@@ -1155,8 +1007,7 @@ $(document).ready(function () {
                             const $viewDetailsBtn = $('<a class="btn btn-link btn-sm text-dark text-decoration-none mt-2 d-block mx-auto view-details" href="product-detail.html?id=' + product.id + '" target="_blank">View Details</a>');
 
                             $btnContainer.append($viewDetailsBtn);
-                            $wrapper.append($card);
-                            $container.append($wrapper);
+                            $container.append($card);
                         });
                     },
                     error: function (fallbackErr) {
@@ -1210,20 +1061,19 @@ $(document).ready(function () {
 
         let subtotal = 0;
         cart.forEach(item => {
-            const itemPrice = parseFloat(item.price) || 0;
-            const itemQty = parseInt(item.quantity) || 1;
-            const itemTotal = itemPrice * itemQty;
+            const itemPrice = parseFloat(item.price);
+            const itemTotal = itemPrice * item.quantity;
             subtotal += itemTotal;
             $list.append(`
             <li class="list-group-item d-flex justify-content-between lh-sm">
                 <div class="d-flex align-items-center">
                     <div class="me-3 position-relative">
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary" style="font-size: 0.6em;">${itemQty}</span>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary" style="font-size: 0.6em;">${item.quantity}</span>
                         <img src="${item.image}" alt="${item.name}" width="50" class="rounded">
                     </div>
                     <div>
                         <h6 class="my-0">${item.name}</h6>
-                        <small class="text-muted">${item.distributor || 'Unknown'}</small>
+                        <small class="text-muted">${item.category}</small>
                     </div>
                 </div>
                 <span class="text-muted">$${itemTotal.toFixed(2)}</span>
@@ -1232,7 +1082,7 @@ $(document).ready(function () {
         });
 
         $('#checkout-total').text('$' + subtotal.toFixed(2));
-        $('.cart-count-badge').text(cart.reduce((a, b) => a + (parseInt(b.quantity) || 1), 0));
+        $('.cart-count-badge').text(cart.reduce((a, b) => a + b.quantity, 0));
 
         // Pre-fill email if logged in
         const user = JSON.parse(sessionStorage.getItem('currentUser'));
@@ -1254,62 +1104,18 @@ $(document).ready(function () {
             return;
         }
 
+        // No validation required - allow any values
+
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
         const userEmail = $('#email').val().trim();
         const orderOwnerEmail = currentUser ? currentUser.email : userEmail;
 
-        if (!orderOwnerEmail) {
-            alert('Please enter a valid email address');
-            return;
-        }
-
-        // Validate and sanitize cart items
-        const validItems = [];
-        const invalidItems = [];
-        
-        cart.forEach((item, idx) => {
-            // Strict validation
-            let startLength = invalidItems.length;
-            if (!item.id) invalidItems.push(`Item ${idx}: Missing ID`);
-            if (!item.name || typeof item.name !== 'string') invalidItems.push(`Item ${idx}: Invalid name`);
-            if (isNaN(parseFloat(item.price))) invalidItems.push(`Item ${idx}: Invalid price (${item.price})`);
-            if (!item.quantity || isNaN(parseInt(item.quantity))) invalidItems.push(`Item ${idx}: Invalid quantity`);
-
-            if (invalidItems.length === startLength) { // No new errors added for this item
-                validItems.push({
-                    id: item.id,
-                    name: String(item.name).trim(),
-                    price: parseFloat(item.price),
-                    quantity: parseInt(item.quantity),
-                    distributor: item.distributor || 'Unknown'
-                    // Image removed from payload to prevent 413 errors - server fetches from DB
-                });
-            }
-        });
-
-        if (invalidItems.length > 0) {
-            console.error('Invalid items found:', invalidItems);
-            alert(`Cart has invalid items:\n\n${invalidItems.join('\n')}\n\nPlease reload the page and try again.`);
-            return;
-        }
-
-        if (validItems.length === 0) {
-            alert('Your cart is empty or contains no valid items');
-            return;
-        }
-
-        const total = validItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        if (total <= 0) {
-            alert('Order total must be greater than 0');
-            return;
-        }
-
         const purchase = {
             orderId: 'ORD-' + Date.now(),
-            user: orderOwnerEmail,
+            user: orderOwnerEmail, // Fallback to form email
             shippingDetails: {
-                firstName: $('#firstName').val() || 'Guest',
-                lastName: $('#lastName').val() || 'User',
+                firstName: $('#firstName').val(),
+                lastName: $('#lastName').val(),
                 email: $('#email').val(),
                 phone: $('#phone').val(),
                 address: $('#address').val(),
@@ -1318,88 +1124,47 @@ $(document).ready(function () {
                 country: $('#country').val(),
                 state: $('#state').val(),
                 zip: $('#zip').val(),
-                paymentMethod: $('input[name="paymentMethod"]:checked').val() || 'credit',
+                paymentMethod: $('input[name="paymentMethod"]:checked').val(),
                 cardName: $('#cc-name').val(),
                 cardNumber: $('#cc-number').val()
             },
-            items: validItems,
-            total: parseFloat(total.toFixed(2)),
+            items: cart,
+            total: calculateTotal(),
             date: new Date().toISOString(),
             status: 'Pending',
-            shipmentStatus: 'pending'
+            shipmentStatus: 'pending' // Default shipment status
         };
 
-        // Debug logs removed for production
-
-        if (!window.API || !window.API.orders) {
-            alert('ERROR: API configuration not loaded. Please refresh the page.');
-            return;
-        }
-
-        const submitBtn = $('button[type="submit"]');
-        const originalText = submitBtn.text();
-        submitBtn.prop('disabled', true).text('Processing...');
-
-        // Send order to API with detailed logging
+        // Send order to API
         fetch(window.API.orders, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(purchase)
         })
             .then(response => {
-                console.log(`Response Status: ${response.status}`);
-                console.log('Response Headers:', {
-                    contentType: response.headers.get('content-type'),
-                    contentLength: response.headers.get('content-length')
-                });
-                
-                return response.text().then(text => {
-                    console.log(`Response Text (${text.length} chars):`, text.substring(0, 500));
-                    
-                    if (!text) {
-                        throw new Error('Server returned empty response');
-                    }
-                    
-                    // Try to parse as JSON
-                    try {
-                        const data = JSON.parse(text);
-                        return { ok: response.ok, status: response.status, data };
-                    } catch (parseErr) {
-                        console.error('JSON Parse Failed:', parseErr.message);
-                        throw new Error(`Invalid response from server. Status: ${response.status}, Type: ${response.headers.get('content-type')}, Content: ${text.substring(0, 300)}`);
-                    }
-                });
-            })
-            .then(({ ok, status, data }) => {
-                if (ok && status === 201) {
-                    console.log('✓ Order successful:', data);
+                if (response.ok) {
                     cart = [];
                     localStorage.setItem('cart', JSON.stringify(cart));
                     updateCartCount();
+                    // Store order details for receipt
                     localStorage.setItem('lastOrder', JSON.stringify(purchase));
                     
+                    // Also store in local history list to persist multiple orders locally
                     let localOrders = JSON.parse(localStorage.getItem('localOrders') || '[]');
                     localOrders.push(purchase);
                     localStorage.setItem('localOrders', JSON.stringify(localOrders));
 
-                    alert('✓ Order placed successfully!\n\nOrder ID: ' + purchase.orderId + '\nTotal: $' + purchase.total.toFixed(2) + '\n\nRedirecting to receipt...');
+                    alert('Order placed successfully! Redirecting to receipt...');
+                    // Store user email for orders page
                     localStorage.setItem('userEmail', orderOwnerEmail);
-                    setTimeout(() => {
-                        window.location.href = 'receipt.html?orderId=' + purchase.orderId;
-                    }, 500);
+                    window.location.href = 'receipt.html?orderId=' + purchase.orderId;
                 } else {
-                    const errorMsg = data.error || `Server error (Status: ${status})`;
-                    console.error('Order failed:', data);
-                    throw new Error(errorMsg);
+                    alert('Failed to place order. Please try again.');
                 }
             })
             .catch(err => {
-                console.error('❌ Checkout Error:', err.message);
-                console.error('Full Error:', err);
-                alert(`❌ CHECKOUT ERROR:\n\n${err.message}\n\nPlease open the browser console (F12) and check for details.`);
-            })
-            .finally(() => {
-                submitBtn.prop('disabled', false).text(originalText);
+                console.error('Order placement error:', err);
+                alert('Error connecting to server.');
             });
     });
 
@@ -1424,129 +1189,7 @@ $(document).ready(function () {
         }
     });
 
-    // Delete Order Handler
-    $(document).on('click', '.delete-order-btn', function() {
-        const orderId = $(this).data('order-id');
-        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-
-        if (!currentUser) {
-            alert('Please login to delete orders.');
-            return;
-        }
-
-        if (confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
-            // Send delete request to server
-            fetch(`${window.API.deleteOrder(orderId)}?currentUser=${encodeURIComponent(currentUser.email)}&role=${currentUser.role}`, {
-                method: 'DELETE'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    // Remove the card from UI
-                    $(this).closest('.card').fadeOut(300, function() {
-                        $(this).remove();
-                        // Check if no orders left
-                        if ($('#orders-list .card').length === 0) {
-                            $('#orders-list').html('<p class="text-center py-5">No orders found.</p>');
-                        }
-                    });
-                    alert('Order deleted successfully!');
-                } else {
-                    alert('Error deleting order: ' + (data.error || 'Unknown error'));
-                }
-            })
-            .catch(err => {
-                console.error('Error deleting order:', err);
-                alert('Error deleting order. Please try again.');
-            });
-        }
-    });
-
-    // Scroll Animation for Product Cards
-    function initScrollAnimations() {
-        function isInViewport(element) {
-            const rect = element.getBoundingClientRect();
-            return rect.top < window.innerHeight && rect.bottom > 0;
-        }
-
-        if (!window.scrollAnimationInitialized) {
-            window.scrollAnimationInitialized = true;
-            let lastScrollY = window.scrollY;
-
-            $(window).on('scroll', function() {
-                $('.product-card, .product-item, .scroll-animate').each(function() {
-                    if (isInViewport(this) && !$(this).hasClass('animate')) {
-                        $(this).addClass('animate');
-                    }
-                });
-            });
-
-            // Initial check for elements already in viewport
-            $('.product-card, .product-item, .scroll-animate').each(function() {
-                if (isInViewport(this)) {
-                    $(this).addClass('animate');
-                }
-            });
-        }
-    }
-
-    // Initialize scroll animations after products load
-    setTimeout(initScrollAnimations, 1500);
-
-    // Re-initialize animations when new content loads
-    $(document).on('productsLoaded', function() {
-        setTimeout(initScrollAnimations, 100);
-    });
-
     // Motion.dev Animations
     if (typeof motion !== 'undefined') {
-        // Add entrance animations for cards
-        motion.animate('.product-card', { opacity: [0, 1], y: [30, 0] }, { duration: 0.6, delay: motion.stagger(0.1) });
-        motion.animate('.feature-card', { opacity: [0, 1], scale: [0.9, 1] }, { duration: 0.5, delay: motion.stagger(0.1) });
-        motion.animate('.team-card', { opacity: [0, 1], x: [-30, 0] }, { duration: 0.6, delay: motion.stagger(0.1) });
     }
-
-    // Sponsor Filter Functionality
-    $('.btn-group .btn').on('click', function() {
-        $('.btn-group .btn').removeClass('active');
-        $(this).addClass('active');
-
-        const filter = $(this).data('filter');
-        if (filter === 'all') {
-            $('.sponsor-card').fadeIn();
-        } else {
-            $('.sponsor-card').hide();
-            $(`.sponsor-card[data-tier="${filter}"]`).fadeIn();
-        }
-    });
-
-    // Enhanced hover effects
-    $('.product-card, .feature-card, .team-card, .sponsor-card').hover(
-        function() {
-            $(this).addClass('hover-lift');
-        },
-        function() {
-            $(this).removeClass('hover-lift');
-        }
-    );
-
-    // Smooth scroll to sections
-    $('a[href^="#"]').on('click', function(event) {
-        const target = $(this.getAttribute('href'));
-        if (target.length) {
-            event.preventDefault();
-            $('html, body').stop().animate({
-                scrollTop: target.offset().top - 70
-            }, 1000);
-        }
-    });
-
-    // Add loading animation for buttons
-    $(document).on('click', '.btn', function() {
-        const $btn = $(this);
-        if (!$btn.hasClass('no-loading')) {
-            $btn.addClass('loading');
-            setTimeout(() => $btn.removeClass('loading'), 1000);
-        }
-    });
 });

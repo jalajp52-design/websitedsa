@@ -1,7 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-const dbPath = path.resolve(__dirname, 'glow_gloss.db');
+const dbPath = path.resolve(__dirname, 'ecommerce.db');
 const db = new sqlite3.Database(dbPath);
 
 // Configuration based on your request

@@ -2,7 +2,7 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
 // Connect to SQLite database file instead of external server
-const dbPath = path.resolve(__dirname, 'glow_gloss.db');
+const dbPath = path.resolve(__dirname, 'ecommerce.db');
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('Could not connect to database', err);
@@ -48,7 +48,6 @@ function initDb() {
             description TEXT,
             image TEXT,
             distributor TEXT DEFAULT 'Main Warehouse',
-            rating REAL DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`, (err) => {
             if (err) console.error("Error creating products table", err);
@@ -74,13 +73,6 @@ function initDb() {
                         insert.finalize();
                     }
                 });
-            }
-        });
-
-        // Add rating column if it doesn't exist (run after table creation)
-        db.run(`ALTER TABLE products ADD COLUMN rating REAL DEFAULT 0;`, (alterErr) => {
-            if (alterErr && !alterErr.message.includes('duplicate column name')) {
-                console.error('Error adding rating column:', alterErr);
             }
         });
 

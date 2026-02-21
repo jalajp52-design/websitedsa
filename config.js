@@ -12,7 +12,6 @@ const API_ENDPOINTS = {
     products: `${BASE_API_URL}/api/products`,
     orders: `${BASE_API_URL}/api/orders`,
     updateOrder: (orderId) => `${BASE_API_URL}/api/orders/${orderId}`,
-    deleteOrder: (orderId) => `${BASE_API_URL}/api/orders/${orderId}`,
     checkUsers: `${BASE_API_URL}/api/check-users`,
     checkOrders: `${BASE_API_URL}/api/check-orders`,
     checkOrderItems: `${BASE_API_URL}/api/check-order-items`,

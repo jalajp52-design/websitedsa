@@ -109,7 +109,6 @@
             </div>
 
             <div class="text-center mt-4">
-                <button id="delete-receipt-btn" class="btn btn-danger me-2">Delete Receipt</button>
                 <a href="orders.html" class="btn btn-primary me-2">View All Orders</a>
                 <a href="index.html" class="btn btn-outline-primary">Continue Shopping</a>
             </div>
@@ -154,23 +153,22 @@
                 return;
             }
 
-                    fetch(`${window.API.orders}?email=${encodeURIComponent(email)}&role=${role}`)
-                        .then(response => response.json())
-                        .then(orders => {
-                            let foundOrder = orders.find(o => o.orderId === orderId);
+            fetch(`${window.API.orders}?email=${encodeURIComponent(email)}&role=${role}`)
+                .then(response => response.json())
+                .then(orders => {
+                    let foundOrder = orders.find(o => o.orderId === orderId);
+                    
+                    // Fallback to local storage if not found in API (e.g. API lag)
+                    if (!foundOrder && lastOrder && lastOrder.orderId === orderId) {
+                        foundOrder = lastOrder;
+                    }
 
-                            // Fallback to local storage if not found in API (e.g. API lag)
-                            if (!foundOrder && lastOrder && lastOrder.orderId === orderId) {
-                                foundOrder = lastOrder;
-                            }
-
-                            if (!foundOrder) {
-                                $('#receipt-content').html('<div class="alert alert-danger">Order not found.</div>');
-                                $('#delete-receipt-btn').hide();
-                                return;
-                            }
-                            renderReceipt(foundOrder);
-                        })
+                    if (!foundOrder) {
+                        $('#receipt-content').html('<div class="alert alert-danger">Order not found.</div>');
+                        return;
+                    }
+                    renderReceipt(foundOrder);
+                })
                 .catch(err => {
                     console.error('Error loading receipt:', err);
                     // Fallback on error
@@ -186,7 +184,7 @@
                 const itemsHtml = order.items.map(item => `
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
-                            <img src="${item.image}" alt="${item.name}" width="50" class="me-3 rounded" onerror="this.src='images/shampoo.png'">
+                            <img src="${item.image}" alt="${item.name}" width="50" class="me-3 rounded">
                             <div>
                                 <h6 class="my-0">${item.name}</h6>
                                 <small class="text-muted">Quantity: ${item.quantity}</small>
@@ -243,47 +241,6 @@
                 `;
 
                 $('#receipt-content').html(receiptHtml);
-
-                // Show delete button only for customers and distributors
-                const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-                if (currentUser && (currentUser.role === 'customer' || currentUser.role === 'distributor')) {
-                    $('#delete-receipt-btn').show();
-                } else {
-                    $('#delete-receipt-btn').hide();
-                }
-            }
-
-            // Delete receipt functionality
-            $('#delete-receipt-btn').on('click', function() {
-                if (confirm('Are you sure you want to delete this receipt? This action cannot be undone.')) {
-                    const orderId = getOrderIdFromUrl();
-                    if (!orderId) {
-                        alert('Order ID not found.');
-                        return;
-                    }
-
-                    fetch(window.API.deleteOrder(orderId), {
-                        method: 'DELETE'
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.message) {
-                            alert('Receipt deleted successfully.');
-                            window.location.href = 'orders.html';
-                        } else {
-                            alert('Error deleting receipt: ' + (data.error || 'Unknown error'));
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Delete error:', err);
-                        alert('Error deleting receipt. Please try again.');
-                    });
-                }
-            });
-
-            function getOrderIdFromUrl() {
-                const urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get('orderId');
             }
         });
     </script>

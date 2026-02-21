@@ -10,35 +10,8 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors());
-app.use(bodyParser.json({ limit: '10gb' }));
-app.use(bodyParser.urlencoded({ limit: '10gb', extended: true }));
-
-// Debug middleware - log all requests (remove in production)
-if (process.env.NODE_ENV !== 'production') {
-    app.use((req, res, next) => {
-        const timestamp = new Date().toISOString();
-        console.log(`\n[${timestamp}] ${req.method} ${req.path}`);
-        console.log('  Content-Type:', req.get('content-type'));
-        console.log('  Host:', req.get('host'));
-        console.log('  Origin:', req.get('origin'));
-
-        if (req.body && Object.keys(req.body).length > 0) {
-            console.log('  Body keys:', Object.keys(req.body));
-            console.log('  Body (first 300 chars):', JSON.stringify(req.body).substring(0, 300));
-        }
-
-        // Log response status
-        const originalSend = res.send;
-        res.send = function(data) {
-            const statusCode = res.statusCode;
-            console.log(`  Response: ${statusCode}${typeof data === 'string' && data.length < 200 ? ' - ' + data.substring(0, 100) : ''}`);
-            return originalSend.call(this, data);
-        };
-
-        next();
-    });
-}
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '/'))); // Serve static files
 
 // API Endpoints
@@ -112,33 +85,7 @@ app.get('/api/products', async (req, res) => {
         res.json(products);
     } catch (error) {
         console.error('Error fetching products:', error);
-        res.status(500).json({ error: `Error fetching products: ${error.message}` });
-    }
-});
-
-// 3.5. Add Product (for distributors/retailers)
-app.post('/api/products', async (req, res) => {
-    try {
-        const { name, category, price, description, image, distributor } = req.body;
-
-        // Validate required fields
-        if (!name || !category || !price || !distributor) {
-            return res.status(400).json({ error: 'Name, category, price, and distributor are required' });
-        }
-
-        // Insert new product
-        const result = await db.query(
-            'INSERT INTO products (name, category, price, description, image, distributor, rating) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [name, category, parseFloat(price), description || '', image || 'images/shampoo.png', distributor, 0]
-        );
-
-        res.status(201).json({
-            message: 'Product added successfully',
-            productId: result.insertId
-        });
-    } catch (error) {
-        console.error('Error adding product:', error);
-        res.status(500).json({ error: 'Error adding product' });
+        res.status(500).json({ error: 'Error fetching products' });
     }
 });
 
@@ -146,21 +93,6 @@ app.post('/api/products', async (req, res) => {
 app.post('/api/orders', async (req, res) => {
     try {
         const { orderId, user, items, total, date, status, shipmentStatus, shippingDetails } = req.body;
-        
-        // Validate required fields
-        if (!orderId) {
-            return res.status(400).json({ error: 'Order ID is required' });
-        }
-        if (!user) {
-            return res.status(400).json({ error: 'User email is required' });
-        }
-        if (!items || !Array.isArray(items) || items.length === 0) {
-            return res.status(400).json({ error: 'Order must contain at least one item' });
-        }
-        if (!total || total <= 0) {
-            return res.status(400).json({ error: 'Total must be greater than 0' });
-        }
-
         const trimmedUser = (user || '').trim();
 
         // Find user ID from email or create guest user
@@ -185,39 +117,28 @@ app.post('/api/orders', async (req, res) => {
             [orderId, userId, trimmedUser, total, status || 'pending', shipmentStatus || 'pending', JSON.stringify(shippingDetails), date]
         );
         const dbOrderId = orderResult.insertId;
+        console.log('Order inserted with ID:', dbOrderId, 'orderId:', orderId);
 
         // Insert Order Items
         for (const item of items) {
-            // Validate item fields
-            if (!item.name || !item.price || !item.quantity) {
-                throw new Error(`Invalid item format: ${JSON.stringify(item)}`);
-            }
-
-            // Always fetch image from DB for existing products, or use default for new items
+            // Assuming item structure matches what client sends
             const productId = isNaN(item.id) ? null : item.id;
-            let image = 'images/shampoo.png'; // Default image
-
-            if (productId) {
-                // Fetch image from products table
-                const product = await db.query('SELECT image FROM products WHERE id = ?', [productId]);
-                if (product[0]?.image) {
-                    image = product[0].image;
-                }
-            } else if (item.image) {
-                // For user-added products, use the provided image
-                image = item.image;
-            }
-
             await db.query(
                 'INSERT INTO order_items (order_id, product_id, product_name, product_price, quantity, distributor, image) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                [dbOrderId, productId, item.name, item.price, item.quantity, item.distributor, image]
+                [dbOrderId, productId, item.name, item.price, item.quantity, item.distributor, item.image]
             );
         }
+
+        // Note: Shipping details are complex to store without a dedicated table or JSON column.
+        // For simplicity in this demo, we might store them in a text column if we modify the schema, 
+        // or just rely on user address in Users table. 
+        // But the schema implies a basic structure. 
+        // Let's assume we proceed without storing explicit shipping details in a separate table for now unless schema is updated.
 
         res.status(201).json({ message: 'Order placed successfully', orderId: orderId });
     } catch (error) {
         console.error('Order creation error:', error);
-        res.status(500).json({ error: `Error creating order: ${error.message}` });
+        res.status(500).json({ error: 'Error creating order' });
     }
 });
 
@@ -233,11 +154,11 @@ app.get('/api/orders', async (req, res) => {
             const userEmail = req.query.email;
             const role = req.query.role;
 
-            // Debug: Check all orders in database (remove in production)
-            if (process.env.NODE_ENV !== 'production') {
-                const allOrders = await db.query('SELECT * FROM orders');
-                console.log('All orders in database:', allOrders);
-            }
+            console.log(`Fetching orders for email: ${userEmail}, role: ${role}`);
+
+            // Debug: Check all orders in database
+            const allOrders = await db.query('SELECT * FROM orders');
+            console.log('All orders in database:', allOrders);
 
             // If no email and no role specified, return all orders (for admin/dashboard view)
             if (!userEmail && !role) {
@@ -262,12 +183,14 @@ app.get('/api/orders', async (req, res) => {
         let orders = await db.query(sql, params);
         if (!Array.isArray(orders)) orders = [];
 
+        console.log(`Found ${orders.length} orders in database`);
+
         // Fetch items for each order
         for (const order of orders) {
             const items = await db.query('SELECT * FROM order_items WHERE order_id = ?', [order.id]);
             order.items = items;
 
-
+            console.log(`Order ${order.id} (${order.order_id}): shipment_status = ${order.shipment_status}`);
 
             // Map keys to match frontend expectations
             order.orderId = order.order_id;
@@ -284,6 +207,7 @@ app.get('/api/orders', async (req, res) => {
             }));
         }
 
+        console.log(`Returning ${orders.length} orders to frontend`);
         res.json(orders);
     } catch (error) {
         console.error('Error fetching orders:', error);
@@ -297,71 +221,29 @@ app.put('/api/orders/:id', async (req, res) => {
         const { id } = req.params;
         const { shipmentStatus } = req.body;
 
+        console.log(`Updating order ${id} shipment status to: ${shipmentStatus}`);
+
         // Update the order shipment status
         const result = await db.query('UPDATE orders SET shipment_status = ? WHERE id = ?', [shipmentStatus, id]);
+
+        console.log(`Update result: ${result.affectedRows} rows affected`);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Order not found or no changes made' });
         }
 
+        // Verify the update
+        const verifyOrder = await db.query('SELECT shipment_status FROM orders WHERE id = ?', [id]);
+        console.log(`Verified shipment status: ${verifyOrder[0]?.shipment_status}`);
+
         res.json({ message: 'Order shipment status updated successfully' });
     } catch (error) {
         console.error('Error updating order shipment status:', error);
-        res.status(500).json({ error: `Error updating order shipment status: ${error.message}` });
+        res.status(500).json({ error: 'Error updating order shipment status' });
     }
 });
 
-// 7. Delete Order (for customers and distributors)
-app.delete('/api/orders/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const currentUser = req.query.currentUser; // Pass user info from frontend
-        const role = req.query.role;
-
-        if (!currentUser || !role) {
-            return res.status(401).json({ error: 'Authentication required' });
-        }
-
-        // Get order details to verify ownership
-        const orders = await db.query('SELECT * FROM orders WHERE id = ?', [id]);
-        if (orders.length === 0) {
-            return res.status(404).json({ error: 'Order not found' });
-        }
-
-        const order = orders[0];
-
-        // Check authorization: customers can delete their own orders, distributors can delete orders containing their products
-        let authorized = false;
-        if (role === 'customer' && order.user_email.toLowerCase() === currentUser.toLowerCase()) {
-            authorized = true;
-        } else if (role === 'distributor' || role === 'retailer') {
-            // Check if distributor has products in this order
-            const orderItems = await db.query('SELECT distributor FROM order_items WHERE order_id = ?', [id]);
-            authorized = orderItems.some(item => item.distributor === currentUser);
-        }
-
-        if (!authorized) {
-            return res.status(403).json({ error: 'Not authorized to delete this order' });
-        }
-
-        // First, delete order items
-        await db.query('DELETE FROM order_items WHERE order_id = ?', [id]);
-
-        // Then delete the order
-        const result = await db.query('DELETE FROM orders WHERE id = ?', [id]);
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Order not found' });
-        }
-
-        res.json({ message: 'Order deleted successfully' });
-    } catch (error) {
-        console.error('Error deleting order:', error);
-        res.status(500).json({ error: `Error deleting order: ${error.message}` });
-    }
-});
-
-// 8. Get Users (for retailers/distributors to view customer database)
+// 7. Get Users (for retailers/distributors to view customer database)
 app.get('/api/users', async (req, res) => {
     try {
         const currentUser = req.query.currentUser;
@@ -377,7 +259,7 @@ app.get('/api/users', async (req, res) => {
         res.json(users);
     } catch (error) {
         console.error('Error fetching users:', error);
-        res.status(500).json({ error: `Error fetching users: ${error.message}` });
+        res.status(500).json({ error: 'Error fetching users' });
     }
 });
 

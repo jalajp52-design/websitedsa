@@ -411,6 +411,7 @@
                 e.preventDefault();
 
                 const newProduct = {
+                    id: 'extra-' + Date.now(),
                     name: $('#product-name').val(),
                     category: $('#product-category').val(),
                     price: parseFloat($('#product-price').val()),
@@ -419,28 +420,14 @@
                     distributor: currentUser.name
                 };
 
-                // Send to server API
-                $.ajax({
-                    url: window.API.products,
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(newProduct),
-                    success: function(data) {
-                        // Also save locally for immediate display
-                        let extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
-                        const localItem = { ...newProduct, id: data.productId };
-                        extraProducts.push(localItem);
-                        localStorage.setItem('extraProducts', JSON.stringify(extraProducts));
+                let extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
+                extraProducts.push(newProduct);
+                localStorage.setItem('extraProducts', JSON.stringify(extraProducts));
 
-                        $('#addProductModal').modal('hide');
-                        $(this)[0].reset();
-                        loadInventory();
-                        alert('Product added successfully!');
-                    },
-                    error: function(xhr) {
-                        alert('Error adding product: ' + (xhr.responseJSON?.error || 'Unknown error'));
-                    }
-                });
+                $('#addProductModal').modal('hide');
+                $(this)[0].reset();
+                loadInventory();
+                alert('Product added successfully!');
             });
 
             // Remove Product
