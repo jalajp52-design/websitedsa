@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Distributor Dashboard | Glow & Gloss</title>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
@@ -58,7 +60,9 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
         <div class="container">
             <a class="navbar-brand" href="index.html">
-                <span class="brand-text" style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.5rem; background: linear-gradient(45deg, #ff6b6b, #feca57); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Glow & Gloss</span>
+                <span class="brand-text"
+                    style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.5rem; background: linear-gradient(45deg, #ff6b6b, #feca57); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Glow
+                    & Gloss</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -137,7 +141,8 @@
                 <div class="dashboard-card">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="fw-bold mb-0">Product Inventory</h5>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">Add Product</button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">Add
+                            Product</button>
                     </div>
                     <div id="inventory-alerts"></div>
                     <div class="table-responsive">
@@ -229,12 +234,63 @@
         </div>
     </div>
 
+    <!-- Edit Product Modal -->
+    <div class="modal fade" id="editProductModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="background:#fff3cd;">
+                    <h5 class="modal-title fw-bold">✏️ Edit Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-product-form">
+                        <input type="hidden" id="edit-product-id">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Product Name</label>
+                            <input type="text" class="form-control" id="edit-product-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Category</label>
+                            <select class="form-select" id="edit-product-category" required>
+                                <option value="Shampoo">Shampoo</option>
+                                <option value="Conditioner">Conditioner</option>
+                                <option value="Hair Spa">Hair Spa</option>
+                                <option value="Skincare">Skincare</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Price ($)</label>
+                            <input type="number" class="form-control" id="edit-product-price" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Description</label>
+                            <textarea class="form-control" id="edit-product-description" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Image URL</label>
+                            <input type="url" class="form-control" id="edit-product-image">
+                            <div class="mt-2 text-center">
+                                <img id="edit-product-preview" src="" alt="Preview" class="img-thumbnail"
+                                    style="max-height:80px; display:none;">
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-warning flex-grow-1 fw-bold">💾 Save Changes</button>
+                            <button type="button" class="btn btn-outline-secondary"
+                                data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="config.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
             if (!currentUser || currentUser.role !== 'distributor') {
                 alert('Access denied. Distributors only.');
@@ -243,7 +299,7 @@
             }
 
             // Logout
-            $('.global-logout-btn').on('click', function(e) {
+            $('.global-logout-btn').on('click', function (e) {
                 e.preventDefault();
                 sessionStorage.removeItem('currentUser');
                 window.location.reload();
@@ -257,7 +313,7 @@
 
             function loadDashboardStats() {
                 // Fetch orders for this distributor
-                $.get(`${window.API.orders}?role=distributor`, function(orders) {
+                $.get(`${window.API.orders}?role=distributor`, function (orders) {
                     let totalSales = 0;
                     let shipped = 0;
                     let pending = 0;
@@ -280,7 +336,7 @@
 
             function loadInventory() {
                 // Load products from API and local storage
-                $.get(window.API.products, function(products) {
+                $.get(window.API.products, function (products) {
                     const extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
                     const allProducts = [...products, ...extraProducts].filter(p => p.distributor === currentUser.name);
 
@@ -289,61 +345,77 @@
                     const $tbody = $('#inventory-table');
                     $tbody.empty();
 
-                    allProducts.forEach(product => {
-                        $tbody.append(`
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <img src="${product.image}" width="40" class="me-2 rounded">
-                                        <div>
-                                            <div class="fw-bold">${product.name}</div>
-                                            <small class="text-muted">${product.description}</small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>${product.category}</td>
-                                <td>$${parseFloat(product.price).toFixed(2)}</td>
-                                <td><span class="badge bg-success">In Stock</span></td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary me-1">Edit</button>
-                                    <button class="btn btn-sm btn-outline-danger remove-product-btn" data-product-id="${product.id}">Remove</button>
-                                </td>
-                            </tr>
-                        `);
+                    allProducts.forEach(function (product) {
+                        var row = '<tr>';
+                        row += '<td><div class="d-flex align-items-center">';
+                        row += '<img src="' + (product.image || '') + '" width="40" class="me-2 rounded">';
+                        row += '<div><div class="fw-bold">' + (product.name || '') + '</div>';
+                        row += '<small class="text-muted">' + (product.description || '') + '</small></div>';
+                        row += '</div></td>';
+                        row += '<td>' + (product.category || '') + '</td>';
+                        row += '<td>$' + parseFloat(product.price || 0).toFixed(2) + '</td>';
+                        row += '<td><span class="badge bg-success">In Stock</span></td>';
+                        row += '<td>';
+                        row += '<button class="btn btn-sm btn-outline-primary me-1 edit-product-btn"'
+                            + ' data-product-id="' + product.id + '"'
+                            + ' data-product-name="' + (product.name || '').replace(/"/g, '&quot;') + '"'
+                            + ' data-product-category="' + (product.category || '') + '"'
+                            + ' data-product-price="' + (product.price || 0) + '"'
+                            + ' data-product-description="' + (product.description || '').replace(/"/g, '&quot;') + '"'
+                            + ' data-product-image="' + (product.image || '') + '">'
+                            + '✏️ Edit</button>';
+                        row += '<button class="btn btn-sm btn-outline-danger remove-product-btn" data-product-id="' + product.id + '">🗑️ Remove</button>';
+                        row += '</td></tr>';
+                        $tbody.append(row);
                     });
                 });
             }
 
             function loadShipments() {
-                $.get(`${window.API.orders}?role=distributor`, function(orders) {
-                    const $tbody = $('#shipments-table');
+                $.get(window.API.orders + '?role=distributor', function (orders) {
+                    var deletedOrderIds = JSON.parse(localStorage.getItem('deletedOrderIds') || '[]');
+                    var $tbody = $('#shipments-table');
                     $tbody.empty();
 
-                    orders.slice(0, 10).forEach(order => { // Show recent 10
-                        const items = order.items.filter(item => item.distributor === currentUser.name);
+                    var count = 0;
+                    orders.forEach(function (order) {
+                        if (count >= 10) return;
+
+                        // Skip deleted orders
+                        if (deletedOrderIds.includes(String(order.orderId)) || deletedOrderIds.includes(String(order.id))) return;
+
+                        var items = (order.items || []).filter(function (item) { return item.distributor === currentUser.name; });
                         if (items.length === 0) return;
 
-                        const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-                        const statusBadge = order.shipmentStatus === 'shipped' ? 'bg-primary' :
-                                          order.shipmentStatus === 'delivered' ? 'bg-success' : 'bg-warning';
+                        count++;
+                        var total = items.reduce(function (sum, item) { return sum + item.price * item.quantity; }, 0);
+                        var status = order.shipmentStatus || 'pending';
+                        var statusBadge = status === 'shipped' ? 'bg-primary' : status === 'delivered' ? 'bg-success' : 'bg-warning text-dark';
+                        var ship = order.shippingDetails || {};
+                        var orderId = order.orderId || order.order_id || '';
+                        var orderDbId = order.id || '';
 
-                        $tbody.append(`
-                            <tr>
-                                <td>${order.orderId}</td>
-                                <td>${order.shippingDetails?.firstName} ${order.shippingDetails?.lastName}</td>
-                                <td>${items.length} item(s)</td>
-                                <td>$${total.toFixed(2)}</td>
-                                <td><span class="badge ${statusBadge}">${order.shipmentStatus}</span></td>
-                                <td>
-                                    <select class="form-select form-select-sm status-update" data-order-id="${order.id}">
-                                        <option value="pending" ${order.shipmentStatus === 'pending' ? 'selected' : ''}>Pending</option>
-                                        <option value="shipped" ${order.shipmentStatus === 'shipped' ? 'selected' : ''}>Shipped</option>
-                                        <option value="delivered" ${order.shipmentStatus === 'delivered' ? 'selected' : ''}>Delivered</option>
-                                    </select>
-                                </td>
-                            </tr>
-                        `);
+                        var html = '<tr>';
+                        html += '<td>' + orderId + '</td>';
+                        html += '<td>' + (ship.firstName || '') + ' ' + (ship.lastName || '') + '</td>';
+                        html += '<td>' + items.length + ' item(s)</td>';
+                        html += '<td>$' + total.toFixed(2) + '</td>';
+                        html += '<td><span class="badge ' + statusBadge + '">' + status + '</span></td>';
+                        html += '<td>';
+                        html += '<div class="d-flex align-items-center gap-2">';
+                        html += '<select class="form-select form-select-sm status-update" data-order-id="' + orderDbId + '">'
+                            + '<option value="pending"' + (status === 'pending' ? ' selected' : '') + '>Pending</option>'
+                            + '<option value="shipped"' + (status === 'shipped' ? ' selected' : '') + '>Shipped</option>'
+                            + '<option value="delivered"' + (status === 'delivered' ? ' selected' : '') + '>Delivered</option>'
+                            + '</select>';
+                        html += '<button class="btn btn-sm btn-outline-danger remove-order-btn" data-order-id="' + orderDbId + '" data-order-number="' + orderId + '" title="Remove"><i class="fas fa-trash-alt"></i></button>';
+                        html += '</div></td></tr>';
+                        $tbody.append(html);
                     });
+
+                    if (count === 0) {
+                        $tbody.html('<tr><td colspan="6" class="text-center text-muted py-4">No shipments found.</td></tr>');
+                    }
                 });
             }
 
@@ -386,31 +458,57 @@
                 });
             }
 
-            // Handle status updates
-            $(document).on('change', '.status-update', function() {
-                const orderId = $(this).data('order-id');
-                const newStatus = $(this).val();
+            // ─── Remove Order Handler ──────────────────────────────────────────
+            $(document).on('click', '.remove-order-btn', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var orderDbId = String($(this).data('order-id') || '');
+                var orderNumber = String($(this).data('order-number') || '');
+                var deleteId = (orderDbId && orderDbId !== 'undefined' && orderDbId !== 'null') ? orderDbId : orderNumber;
+
+                if (!confirm('Remove shipment record for Order ' + orderNumber + '?')) return;
+
+                // Blacklist immediately
+                var deletedOrderIds = JSON.parse(localStorage.getItem('deletedOrderIds') || '[]');
+                if (orderNumber && !deletedOrderIds.includes(orderNumber)) deletedOrderIds.push(orderNumber);
+                if (orderDbId && !deletedOrderIds.includes(orderDbId)) deletedOrderIds.push(orderDbId);
+                localStorage.setItem('deletedOrderIds', JSON.stringify(deletedOrderIds));
+
+                // Remove the table row immediately
+                $(this).closest('tr').fadeOut(300, function () { $(this).remove(); });
+
+                // Best-effort server delete
+                fetch(window.API.deleteOrder(deleteId), { method: 'DELETE' })
+                    .then(function (r) { console.log('Server delete: ' + r.status); })
+                    .catch(function (err) { console.warn('Delete error:', err); });
+            });
+
+            // ─── Status Update Handler ─────────────────────────────────────────
+            $(document).on('change', '.status-update', function () {
+                var $select = $(this);
+                var orderId = $select.data('order-id');
+                var newStatus = $select.val();
 
                 $.ajax({
                     url: window.API.updateOrder(orderId),
                     type: 'PUT',
                     contentType: 'application/json',
                     data: JSON.stringify({ shipmentStatus: newStatus }),
-                    success: function() {
-                        alert('Status updated successfully!');
-                        loadShipments(); // Refresh
+                    success: function () {
+                        alert('Status updated to: ' + newStatus);
+                        loadShipments();
                     },
-                    error: function() {
-                        alert('Failed to update status.');
+                    error: function () {
+                        alert('Failed to update status. Please try again.');
                     }
                 });
             });
 
-            // Add Product Form
-            $('#add-product-form').on('submit', function(e) {
+            // ─── Add Product Form ──────────────────────────────────────────────
+            $('#add-product-form').on('submit', function (e) {
                 e.preventDefault();
 
-                const newProduct = {
+                var newProduct = {
                     id: 'extra-' + Date.now(),
                     name: $('#product-name').val(),
                     category: $('#product-category').val(),
@@ -420,7 +518,7 @@
                     distributor: currentUser.name
                 };
 
-                let extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
+                var extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
                 extraProducts.push(newProduct);
                 localStorage.setItem('extraProducts', JSON.stringify(extraProducts));
 
@@ -430,15 +528,77 @@
                 alert('Product added successfully!');
             });
 
-            // Remove Product
-            $(document).on('click', '.remove-product-btn', function() {
-                const productId = $(this).data('product-id');
+            // ─── Edit Product ───────────────────────────────────────────────
+            // Open modal and pre-fill with existing data
+            $(document).on('click', '.edit-product-btn', function () {
+                var $btn = $(this);
+                $('#edit-product-id').val($btn.data('product-id'));
+                $('#edit-product-name').val($btn.data('product-name'));
+                $('#edit-product-price').val($btn.data('product-price'));
+                $('#edit-product-description').val($btn.data('product-description'));
+                $('#edit-product-image').val($btn.data('product-image'));
+
+                // Set category dropdown
+                var cat = $btn.data('product-category');
+                $('#edit-product-category option').each(function () {
+                    $(this).prop('selected', $(this).val() === cat);
+                });
+
+                // Show image preview
+                var imgSrc = $btn.data('product-image');
+                if (imgSrc) {
+                    $('#edit-product-preview').attr('src', imgSrc).show();
+                } else {
+                    $('#edit-product-preview').hide();
+                }
+
+                new bootstrap.Modal(document.getElementById('editProductModal')).show();
+            });
+
+            // Live image preview while typing URL
+            $('#edit-product-image').on('input', function () {
+                var src = $(this).val();
+                if (src) {
+                    $('#edit-product-preview').attr('src', src).show();
+                } else {
+                    $('#edit-product-preview').hide();
+                }
+            });
+
+            // Save edits
+            $('#edit-product-form').on('submit', function (e) {
+                e.preventDefault();
+                var id = $('#edit-product-id').val();
+                var name = $('#edit-product-name').val().trim();
+                var category = $('#edit-product-category').val();
+                var price = parseFloat($('#edit-product-price').val());
+                var desc = $('#edit-product-description').val().trim();
+                var image = $('#edit-product-image').val().trim();
+
+                var extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
+                var updated = false;
+                extraProducts = extraProducts.map(function (p) {
+                    if (p.id === id) {
+                        updated = true;
+                        return { id: p.id, name: name, category: category, price: price, description: desc, image: image, distributor: p.distributor };
+                    }
+                    return p;
+                });
+
+                localStorage.setItem('extraProducts', JSON.stringify(extraProducts));
+                bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+                loadInventory();
+                alert(updated ? 'Product updated successfully!' : 'Product not found in local storage.');
+            });
+
+            // ─── Remove Product ────────────────────────────────────────────────
+            $(document).on('click', '.remove-product-btn', function () {
+                var productId = $(this).data('product-id');
 
                 if (confirm('Are you sure you want to remove this product?')) {
-                    let extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
-                    extraProducts = extraProducts.filter(p => p.id !== productId);
+                    var extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
+                    extraProducts = extraProducts.filter(function (p) { return p.id !== productId; });
                     localStorage.setItem('extraProducts', JSON.stringify(extraProducts));
-
                     loadInventory();
                     alert('Product removed successfully!');
                 }

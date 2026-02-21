@@ -135,7 +135,7 @@ app.post('/api/orders', async (req, res) => {
         // But the schema implies a basic structure. 
         // Let's assume we proceed without storing explicit shipping details in a separate table for now unless schema is updated.
 
-        res.status(201).json({ message: 'Order placed successfully', orderId: orderId });
+        res.status(201).json({ message: 'Order placed successfully', orderId: orderId, id: dbOrderId });
     } catch (error) {
         console.error('Order creation error:', error);
         res.status(500).json({ error: 'Error creating order' });
@@ -260,6 +260,42 @@ app.get('/api/users', async (req, res) => {
     } catch (error) {
         console.error('Error fetching users:', error);
         res.status(500).json({ error: 'Error fetching users' });
+    }
+});
+
+// 8. Delete Order
+app.delete('/api/orders/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log(`Attempting to delete order: ${id}`);
+
+        // Try to find the internal ID first if 'id' is a string (Order ID format like ORD-...)
+        let targetId = id;
+        if (id.startsWith('ORD-')) {
+            const order = await db.query('SELECT id FROM orders WHERE order_id = ?', [id]);
+            if (order.length > 0) {
+                targetId = order[0].id;
+            }
+        }
+
+        // Delete order items first (due to foreign key)
+        await db.query('DELETE FROM order_items WHERE order_id = ?', [targetId]);
+
+        // Delete the order itself - try by PK first, then by order_id
+        let result = await db.query('DELETE FROM orders WHERE id = ?', [targetId]);
+
+        if (result.affectedRows === 0 && id.startsWith('ORD-')) {
+            result = await db.query('DELETE FROM orders WHERE order_id = ?', [id]);
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        res.json({ message: 'Order deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting order:', error);
+        res.status(500).json({ error: 'Error deleting order' });
     }
 });
 

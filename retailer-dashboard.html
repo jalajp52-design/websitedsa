@@ -74,7 +74,8 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
         <div class="container">
             <a class="navbar-brand" href="index.html">
-                <img src="images/logo.png" alt="Glow & Gloss Logo" width="50" height="50" class="d-inline-block align-text-top me-2">
+                <img src="images/logo.png" alt="Glow & Gloss Logo" width="50" height="50"
+                    class="d-inline-block align-text-top me-2">
                 <span class="brand-text">Glow & Gloss Portal</span>
             </a>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -176,10 +177,11 @@
 
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="config.js"></script>
     <script>
         $(document).ready(function () {
-            // Auth Check - Allow customers to view retailer dashboard for order receipts
+            // Auth Check
             const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
             if (!currentUser) {
                 alert('Please login to view the dashboard.');
@@ -187,192 +189,190 @@
                 return;
             }
 
-            // Load Data
-            // Fetch orders from API
-            $.ajax({
-                url: `${window.API.orders}?role=${currentUser.role}`,
-                type: 'GET',
-                success: function (data) {
-                    const allOrders = data;
+            // ─── Remove Order Handler ───────────────────────────────────────────
+            $(document).on('click', '.remove-order-btn', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var orderDbId = String($(this).data('order-id') || '');
+                var orderNumber = String($(this).data('order-number') || '');
+                var deleteId = (orderDbId && orderDbId !== 'undefined' && orderDbId !== 'null') ? orderDbId : orderNumber;
 
-                    // FILTER ORDERS: Show orders containing products from this retailer/distributor
-                    // Note: The API returns orders. We need to filter items based on distributor.
-                    // The API response for orders includes `items`.
+                if (!confirm('Remove receipt for Order ' + orderNumber + '?')) return;
 
-                    // For retailers/distributors, show ALL orders (they manage logistics for all products)
-                    const retailerOrders = allOrders.map(order => {
-                        return {
-                            ...order,
-                            myTotal: order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-                        };
-                    });
+                // Add to permanent blacklist immediately
+                var deletedOrderIds = JSON.parse(localStorage.getItem('deletedOrderIds') || '[]');
+                if (orderNumber && !deletedOrderIds.includes(orderNumber)) deletedOrderIds.push(orderNumber);
+                if (orderDbId && !deletedOrderIds.includes(orderDbId)) deletedOrderIds.push(orderDbId);
+                localStorage.setItem('deletedOrderIds', JSON.stringify(deletedOrderIds));
 
-                    // Update Stats
-                    $('#stat-orders').text(retailerOrders.length);
+                // Clean localOrders
+                var localOrders = JSON.parse(localStorage.getItem('localOrders') || '[]');
+                localOrders = localOrders.filter(function (o) {
+                    return !((orderDbId && String(o.id) === orderDbId) || (orderNumber && String(o.orderId) === orderNumber));
+                });
+                localStorage.setItem('localOrders', JSON.stringify(localOrders));
 
-                    // Render as receipts per item for distributors
-                    const $ordersList = $('#orders-list');
-                    $ordersList.empty();
-                    const receipts = [];
-                    retailerOrders.reverse().forEach(order => {
-                        order.items.forEach(item => {
-                            // For distributors, only show items they distribute
-                            if (currentUser.role === 'distributor' && item.distributor !== currentUser.name) return;
-                            receipts.push({ order, item });
-                        });
-                    });
-                    receipts.forEach(({ order, item }) => {
-                        const itemTotal = item.price * item.quantity;
-                        const shipmentStatus = order.shipmentStatus || 'pending';
-                        const shipping = order.shippingDetails || {};
+                // Fade out card immediately
+                $(this).closest('.receipt-container').fadeOut(300, function () { $(this).remove(); });
 
-                        $ordersList.append(`
-                            <div class="receipt-container mb-4">
-                                <div class="receipt-header">
-                                    <h1 class="display-5 fw-bold text-success"><i class="fas fa-check-circle me-2"></i>Order Receipt</h1>
-                                    <p class="mb-0">Order ID: ${order.orderId || order.order_id} - ${item.name}</p>
-                                    <p class="small text-muted">Date: ${new Date(order.created_at || order.date).toLocaleString()}</p>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="receipt-section">
-                                            <h5><i class="fas fa-shopping-cart me-2"></i>Order Details</h5>
-                                            <p><strong>Order ID:</strong> ${order.orderId || order.order_id}</p>
-                                            <p><strong>Date:</strong> ${new Date(order.created_at || order.date).toLocaleString()}</p>
-                                            <p><strong>Status:</strong> <span class="badge ${shipmentStatus === 'shipped' ? 'bg-primary' : shipmentStatus === 'delivered' ? 'bg-success' : 'bg-warning'}">${shipmentStatus}</span></p>
-                                            <p><strong>Update Status:</strong>
-                                                <select class="form-select form-select-sm delivery-status-select ms-2" data-order-id="${order.id}" style="width: auto; display: inline-block;">
-                                                    <option value="pending" ${shipmentStatus === 'pending' ? 'selected' : ''}>Pending</option>
-                                                    <option value="shipped" ${shipmentStatus === 'shipped' ? 'selected' : ''}>Shipped</option>
-                                                    <option value="delivered" ${shipmentStatus === 'delivered' ? 'selected' : ''}>Delivered</option>
-                                                </select>
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="receipt-section">
-                                            <h5><i class="fas fa-shipping-fast me-2"></i>Shipping Information</h5>
-                                            <p><strong>Name:</strong> ${shipping.firstName || ''} ${shipping.lastName || ''}</p>
-                                            <p><strong>Email:</strong> ${shipping.email || ''}</p>
-                                            <p><strong>Phone:</strong> ${shipping.phone || ''}</p>
-                                            <p><strong>Address:</strong> ${shipping.address || ''}</p>
-                                            ${shipping.address2 ? `<p><strong>Address 2:</strong> ${shipping.address2}</p>` : ''}
-                                            <p><strong>City:</strong> ${shipping.city || ''}</p>
-                                            <p><strong>State:</strong> ${shipping.state || ''}</p>
-                                            <p><strong>Zip:</strong> ${shipping.zip || ''}</p>
-                                            <p><strong>Country:</strong> ${shipping.country || ''}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="receipt-section">
-                                    <h5><i class="fas fa-list me-2"></i>Item Ordered</h5>
-                                    <ul class="list-group item-list">
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            <div class="d-flex align-items-center">
-                                                <img src="${item.image}" alt="${item.name}" width="40" class="me-3 rounded">
-                                                <div>
-                                                    <h6 class="mb-0">${item.name}</h6>
-                                                    <small class="text-muted">$${parseFloat(item.price).toFixed(2)} x ${item.quantity}</small>
-                                                </div>
-                                            </div>
-                                            <span class="fw-bold">$${itemTotal.toFixed(2)}</span>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-center total-row">
-                                            <strong>Total</strong>
-                                            <strong>$${itemTotal.toFixed(2)}</strong>
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div class="receipt-section">
-                                    <h5><i class="fas fa-credit-card me-2"></i>Payment Information</h5>
-                                    <p><strong>Payment Method:</strong> ${shipping.paymentMethod || 'Credit Card'}</p>
-                                    <p><strong>Card Name:</strong> ${shipping.cardName || ''}</p>
-                                    <p><strong>Card Number:</strong> **** **** **** ${shipping.cardNumber ? shipping.cardNumber.slice(-4) : ''}</p>
-                                </div>
-                            </div>
-                        `);
-                    });
-                },
-                error: function (err) {
-                    console.error('Error fetching orders:', err);
-                }
+                // Best-effort server delete
+                fetch(window.API.deleteOrder(deleteId), { method: 'DELETE' })
+                    .then(function (r) { console.log('Server delete: ' + r.status); })
+                    .catch(function (err) { console.warn('Server delete error:', err); });
             });
 
-            // Fetch users from API
-            $.ajax({
-                url: `/api/users?currentUser=${encodeURIComponent(currentUser.email)}&role=${currentUser.role}`,
-                type: 'GET',
-                success: function (data) {
-                    const users = data;
-
-                    // Update Stats for users
-                    $('#stat-users').text(users.length);
-
-                    // Populate Users from DB
-                    const $userBody = $('#user-table-body');
-                    $userBody.empty();
-                    users.forEach(user => {
-                        $userBody.append(`
-                            <tr>
-                                <td class="small text-muted">${user.id}</td>
-                                <td class="fw-bold">${user.name}</td>
-                                <td>${user.email}</td>
-                                <td><span class="badge ${user.role === 'retailer' ? 'bg-primary' : 'bg-secondary'}">${user.role}</span></td>
-                                <td class="small">${new Date(user.created_at).toLocaleDateString()}</td>
-                            </tr>
-                        `);
-                    });
-                },
-                error: function (err) {
-                    console.error('Error fetching users:', err);
-                }
-            });
-
-            // Products still from local storage for now
-            const extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
-            $('#stat-products').text(extraProducts.filter(p => p.distributor === currentUser.name).length);
-
-            $('#logout-btn').on('click', function () {
-                sessionStorage.removeItem('currentUser');
-                window.location.href = 'index.html';
-            });
-
-            // Handle delivery status update
+            // ─── Status Update Handler ─────────────────────────────────────────
             $(document).on('change', '.delivery-status-select', function () {
-                const $select = $(this); // Capture the element context
-                const orderId = $select.data('order-id');
-                const newStatus = $select.val();
+                var $select = $(this);
+                var orderId = $select.data('order-id');
+                var newStatus = $select.val();
 
                 $.ajax({
                     url: window.API.updateOrder(orderId),
                     type: 'PUT',
                     contentType: 'application/json',
                     data: JSON.stringify({ shipmentStatus: newStatus }),
-                    success: function (response) {
-                        alert('Delivery status updated successfully!');
-                        // Update the badge in the same receipt container
-                        const $badge = $select.closest('.receipt-container').find('.badge');
+                    success: function () {
+                        var $badge = $select.closest('.receipt-container').find('.status-badge');
                         $badge.removeClass('bg-warning bg-primary bg-success');
-                        if (newStatus === 'shipped') {
-                            $badge.addClass('bg-primary');
-                        } else if (newStatus === 'delivered') {
-                            $badge.addClass('bg-success');
-                        } else {
-                            $badge.addClass('bg-warning');
-                        }
+                        $badge.addClass(newStatus === 'shipped' ? 'bg-primary' : newStatus === 'delivered' ? 'bg-success' : 'bg-warning');
                         $badge.text(newStatus);
+                        alert('Status updated to: ' + newStatus);
                     },
-                    error: function (err) {
-                        console.error('Error updating delivery status:', err);
+                    error: function () {
                         alert('Failed to update delivery status. Please try again.');
                     }
                 });
             });
+
+            // ─── Load Orders ───────────────────────────────────────────────────
+            $.ajax({
+                url: window.API.orders + '?role=' + currentUser.role,
+                type: 'GET',
+                success: function (data) {
+                    var deletedOrderIds = JSON.parse(localStorage.getItem('deletedOrderIds') || '[]');
+                    var allOrders = (deletedOrderIds.length > 0)
+                        ? data.filter(function (o) { return !deletedOrderIds.includes(String(o.orderId)) && !deletedOrderIds.includes(String(o.order_id)); })
+                        : data;
+
+                    $('#stat-orders').text(allOrders.length);
+
+                    var $ordersList = $('#orders-list');
+                    $ordersList.empty();
+
+                    var receipts = [];
+                    allOrders.slice().reverse().forEach(function (order) {
+                        (order.items || []).forEach(function (item) {
+                            if (currentUser.role === 'distributor' && item.distributor !== currentUser.name) return;
+                            receipts.push({ order: order, item: item });
+                        });
+                    });
+
+                    if (receipts.length === 0) {
+                        $ordersList.html('<p class="text-center py-5 text-muted">No orders found.</p>');
+                        return;
+                    }
+
+                    receipts.forEach(function (r) {
+                        var order = r.order;
+                        var item = r.item;
+                        var itemTotal = parseFloat(item.price || 0) * parseInt(item.quantity || 1);
+                        var status = order.shipmentStatus || 'pending';
+                        var ship = order.shippingDetails || {};
+                        var orderId = order.orderId || order.order_id || '';
+                        var orderDbId = order.id || '';
+
+                        var statusClass = status === 'shipped' ? 'bg-primary' : status === 'delivered' ? 'bg-success' : 'bg-warning text-dark';
+
+                        var html = '<div class="receipt-container mb-4">';
+                        html += '<div class="receipt-header position-relative">';
+                        html += '<button class="btn btn-sm btn-outline-danger remove-order-btn position-absolute top-0 end-0 mt-2 me-2"'
+                            + ' data-order-id="' + orderDbId + '" data-order-number="' + orderId + '" title="Remove Receipt">'
+                            + '<i class="fas fa-trash-alt"></i></button>';
+                        html += '<h1 class="display-5 fw-bold text-success"><i class="fas fa-check-circle me-2"></i>Order Receipt</h1>';
+                        html += '<p class="mb-0">Order ID: ' + orderId + ' - ' + (item.name || '') + '</p>';
+                        html += '<p class="small text-muted">Date: ' + new Date(order.created_at || order.date || Date.now()).toLocaleString() + '</p>';
+                        html += '</div>';
+
+                        html += '<div class="row">';
+                        html += '<div class="col-md-6"><div class="receipt-section">';
+                        html += '<h5><i class="fas fa-shopping-cart me-2"></i>Order Details</h5>';
+                        html += '<p><strong>Order ID:</strong> ' + orderId + '</p>';
+                        html += '<p><strong>Status:</strong> <span class="badge status-badge ' + statusClass + '">' + status + '</span></p>';
+                        html += '<p><strong>Update Status:</strong> '
+                            + '<select class="form-select form-select-sm delivery-status-select ms-2 d-inline-block" data-order-id="' + orderDbId + '" style="width:auto;">'
+                            + '<option value="pending"' + (status === 'pending' ? ' selected' : '') + '>Pending</option>'
+                            + '<option value="shipped"' + (status === 'shipped' ? ' selected' : '') + '>Shipped</option>'
+                            + '<option value="delivered"' + (status === 'delivered' ? ' selected' : '') + '>Delivered</option>'
+                            + '</select></p>';
+                        html += '</div></div>';
+
+                        html += '<div class="col-md-6"><div class="receipt-section">';
+                        html += '<h5><i class="fas fa-shipping-fast me-2"></i>Shipping</h5>';
+                        html += '<p><strong>Name:</strong> ' + (ship.firstName || '') + ' ' + (ship.lastName || '') + '</p>';
+                        html += '<p><strong>Email:</strong> ' + (ship.email || order.user || '') + '</p>';
+                        html += '<p><strong>Phone:</strong> ' + (ship.phone || '') + '</p>';
+                        html += '<p><strong>Address:</strong> ' + (ship.address || '') + '</p>';
+                        html += '<p><strong>City/State:</strong> ' + (ship.city || '') + ', ' + (ship.state || '') + ' ' + (ship.zip || '') + '</p>';
+                        html += '<p><strong>Country:</strong> ' + (ship.country || '') + '</p>';
+                        html += '</div></div></div>';
+
+                        html += '<div class="receipt-section">';
+                        html += '<h5><i class="fas fa-list me-2"></i>Item Ordered</h5>';
+                        html += '<ul class="list-group">';
+                        html += '<li class="list-group-item d-flex justify-content-between align-items-center">';
+                        html += '<div class="d-flex align-items-center">'
+                            + '<img src="' + (item.image || '') + '" alt="' + (item.name || '') + '" width="40" class="me-3 rounded">'
+                            + '<div><strong>' + (item.name || '') + '</strong><br><small class="text-muted">$' + parseFloat(item.price || 0).toFixed(2) + ' x ' + (item.quantity || 1) + '</small></div>'
+                            + '</div>'
+                            + '<span class="fw-bold">$' + itemTotal.toFixed(2) + '</span></li>';
+                        html += '<li class="list-group-item d-flex justify-content-between"><strong>Total</strong><strong>$' + itemTotal.toFixed(2) + '</strong></li>';
+                        html += '</ul></div>';
+
+                        html += '</div>'; // end receipt-container
+                        $ordersList.append(html);
+                    });
+                },
+                error: function (err) {
+                    console.error('Error fetching orders:', err);
+                    $('#orders-list').html('<p class="text-center py-5 text-danger">Could not load orders. Is the server running?</p>');
+                }
+            });
+
+            // ─── Load Users ───────────────────────────────────────────────────
+            $.ajax({
+                url: '/api/users?currentUser=' + encodeURIComponent(currentUser.email) + '&role=' + currentUser.role,
+                type: 'GET',
+                success: function (data) {
+                    $('#stat-users').text(data.length);
+                    var $userBody = $('#user-table-body');
+                    $userBody.empty();
+                    data.forEach(function (user) {
+                        $userBody.append(
+                            '<tr>'
+                            + '<td class="small text-muted">' + user.id + '</td>'
+                            + '<td class="fw-bold">' + (user.name || '') + '</td>'
+                            + '<td>' + (user.email || '') + '</td>'
+                            + '<td><span class="badge ' + (user.role === 'retailer' ? 'bg-primary' : 'bg-secondary') + '">' + (user.role || '') + '</span></td>'
+                            + '<td class="small">' + new Date(user.created_at).toLocaleDateString() + '</td>'
+                            + '</tr>'
+                        );
+                    });
+                },
+                error: function (err) { console.error('Error fetching users:', err); }
+            });
+
+            // Products count
+            var extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
+            $('#stat-products').text(extraProducts.filter(function (p) { return p.distributor === currentUser.name; }).length);
+
+            $('#logout-btn').on('click', function () {
+                sessionStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            });
         });
     </script>
+
 </body>
 
 </html>
