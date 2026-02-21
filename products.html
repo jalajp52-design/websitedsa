@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products | Glow & Gloss</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Motion.dev -->
+    <script src="https://cdn.jsdelivr.net/npm/@motionone/motion@10.15.5/dist/motion.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px 20px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+            padding: 15px 20px;
+            margin-bottom: 8px;
+            border-radius: var(--border-radius-sm);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .sidebar .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        .sidebar .nav-link:hover::before {
+            left: 100%;
+        }
+        .sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(8px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .sidebar .nav-link.active {
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        .sidebar .nav-link i {
+            margin-right: 15px;
+            width: 20px;
+            font-size: 1.1rem;
+        }
+        .sidebar .brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            text-align: center;
+            color: white;
+            font-family: var(--font-heading);
+        }
+        .sidebar .brand span {
+            background: linear-gradient(45deg, var(--accent-color), var(--warning-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .content {
+            margin-left: 280px;
+            padding: 30px;
+            flex: 1;
+            min-height: 100vh;
+        }
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+        .sidebar-toggle:hover {
+            background: var(--accent-hover);
+            transform: scale(1.1);
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                width: 250px;
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+        .nav-section {
+            margin-bottom: 25px;
+        }
+        .nav-section h6 {
+            color: rgba(255,255,255,0.7);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            margin-bottom: 15px;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar">
+        <div class="brand">
+            <span>Glow & Gloss</span>
+        </div>
+        <div class="nav flex-column">
+            <a href="index.html" class="nav-link">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="products.html" class="nav-link active">
+                <i class="fas fa-shopping-bag"></i> Products
+            </a>
+            <a href="orders.html" class="nav-link">
+                <i class="fas fa-shopping-bag"></i> My Orders
+            </a>
+            <a href="retailer-dashboard.html" class="nav-link">
+                <i class="fas fa-chart-line"></i> Retailer Portal
+            </a>
+            <a href="about.html" class="nav-link">
+                <i class="fas fa-info-circle"></i> About
+            </a>
+        </div>
+        <div class="nav-section mt-4">
+            <h6>Account</h6>
+            <div><a href="login.html" class="nav-link"><i class="fas fa-sign-in-alt"></i> Login</a></div>
+            <div><a href="register.html" class="nav-link"><i class="fas fa-user-plus"></i> Register</a></div>
+        </div>
+    </div>
+
+    <div class="content">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <span class="brand-text">Glow & Gloss</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="d-none d-lg-block mx-auto" style="width: 300px;">
+                <form id="nav-search-form" class="position-relative">
+                    <input type="text" id="nav-search-input" class="form-control rounded-pill bg-light border-0 ps-4"
+                        placeholder="Search brands...">
+                    <button type="submit"
+                        class="position-absolute top-50 end-0 translate-middle-y border-0 bg-transparent pe-3 text-muted">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="products.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="orders.html">My Orders</a></li>
+                    <li class="nav-item"><a class="nav-link" href="retailer-dashboard.html">Retailer Portal</a></li>
+                    <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+                    <li class="nav-item position-relative me-3">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#cartModal">
+                            <i class="fas fa-shopping-cart fs-5"></i>
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-count"
+                                style="font-size: 0.6rem;">0</span>
+                        </a>
+                    </li>
+                    <!-- Login/Register buttons will be replaced by main.js -->
+                    <li class="nav-item login-btn"><a class="nav-link btn btn-outline-dark ms-lg-3 px-4"
+                            href="login.html">Login</a></li>
+                    <li class="nav-item register-btn"><a class="nav-link btn btn-outline-dark ms-lg-2 px-4 mt-2 mt-lg-0"
+                            href="register.html">Register</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="py-5 bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
+        <div class="container text-center position-relative z-10">
+            <h1 class="display-4 fw-bold text-gradient mb-3">Our Collection</h1>
+            <p class="text-muted lead">Explore our curated selection of premium beauty essentials.</p>
+            <div class="mt-4">
+                <span class="badge bg-primary me-2">500+ Products</span>
+                <span class="badge bg-success me-2">Premium Quality</span>
+                <span class="badge bg-info">Ethically Sourced</span>
+            </div>
+        </div>
+        <!-- Background decoration -->
+        <div class="position-absolute top-0 end-0 w-64 h-64 bg-gradient-to-bl from-pink-200 to-transparent rounded-full opacity-20"></div>
+        <div class="position-absolute bottom-0 start-0 w-48 h-48 bg-gradient-to-tr from-blue-200 to-transparent rounded-full opacity-20"></div>
+    </section>
+
+    <!-- Toolbar: Search & Filter -->
+    <section class="py-4 border-bottom">
+        <div class="container">
+            <div class="row g-3 align-items-center">
+                <div class="col-lg-4">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i
+                                class="fas fa-search text-muted"></i></span>
+                        <input type="text" id="search-input" class="form-control border-start-0"
+                            placeholder="Search products...">
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="d-flex gap-2 overflow-auto pb-1 pb-lg-0">
+                        <button class="btn btn-dark btn-sm rounded-0 px-4 filter-btn active"
+                            data-filter="all">All</button>
+                        <button class="btn btn-outline-dark btn-sm rounded-0 px-4 filter-btn"
+                            data-filter="Shampoo">Shampoo</button>
+                        <button class="btn btn-outline-dark btn-sm rounded-0 px-4 filter-btn"
+                            data-filter="Conditioner">Conditioner</button>
+                        <button class="btn btn-outline-dark btn-sm rounded-0 px-4 filter-btn"
+                            data-filter="Hair Spa">Hair Spa</button>
+                        <button class="btn btn-outline-dark btn-sm rounded-0 px-4 filter-btn"
+                            data-filter="Skincare">Skincare</button>
+                    </div>
+                </div>
+                <div class="col-lg-3 text-lg-end">
+                    <button class="btn btn-primary btn-sm rounded-0 px-4" data-bs-toggle="modal"
+                        data-bs-target="#addModal">
+                        <i class="fas fa-plus me-2"></i>Add Product
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Grid -->
+    <section class="py-5">
+        <div class="container">
+            <div class="product-grid" id="all-products">
+                <!-- Products loaded via AJAX -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Modal -->
+    <div class="modal fade" id="cartModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content rounded-0">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Shopping Cart</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="cart-items-list">
+                        <!-- Cart items injected by JS -->
+                    </div>
+                </div>
+                <div class="modal-footer border-0 flex-column align-items-stretch">
+                    <div class="d-flex justify-content-between mb-3 px-2">
+                        <h5 class="fw-bold mb-0">Total</h5>
+                        <h5 class="fw-bold mb-0" id="cart-total">$0.00</h5>
+                    </div>
+                    <button type="button" id="checkout-btn" class="btn btn-primary py-3 rounded-0 w-100">Complete
+                        Purchase</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal (Insertion Form) -->
+    <div class="modal fade" id="addModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content rounded-0">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Add New Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="insertion-form">
+                        <div class="mb-3">
+                            <label class="form-label small text-uppercase fw-bold">Product Name</label>
+                            <input type="text" id="item-name" class="form-control" required>
+                            <div class="invalid-feedback">Please enter a product name.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-uppercase fw-bold">Category</label>
+                            <select id="item-category" class="form-select rounded-0" required>
+                                <option value="">Select Category</option>
+                                <option value="Shampoo">Shampoo</option>
+                                <option value="Conditioner">Conditioner</option>
+                                <option value="Hair Spa">Hair Spa</option>
+                                <option value="Skincare">Skincare</option>
+                            </select>
+                            <div class="invalid-feedback">Please select a category.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-uppercase fw-bold">Price ($)</label>
+                            <input type="number" id="item-price" class="form-control" step="0.01" required>
+                            <div class="invalid-feedback">Please enter a valid price.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-uppercase fw-bold">Product Image (Optional)</label>
+                            <input type="file" id="item-image" class="form-control rounded-0" accept="image/*">
+                            <div class="invalid-feedback">Please select an image file.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-uppercase fw-bold">Description</label>
+                            <textarea id="item-description" class="form-control" rows="3" required></textarea>
+                            <div class="invalid-feedback">Please enter a description.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-3 mt-3">Insert Product</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    </div>
+
+    <!-- Footer -->
+    <div id="footer-placeholder"></div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="config.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

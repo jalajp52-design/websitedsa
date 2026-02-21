@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Sponsors - Glow & Gloss</title>
+    <meta name="description"
+        content="Discover the finest collection of shampoos, conditioners, and hair spa products at Glow & Gloss. Your ultimate beauty destination.">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Motion.dev -->
+    <script src="https://cdn.jsdelivr.net/npm/@motionone/motion@10.15.5/dist/motion.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 30px 20px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.9);
+            font-weight: 500;
+            padding: 15px 20px;
+            margin-bottom: 8px;
+            border-radius: var(--border-radius-sm);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .sidebar .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        .sidebar .nav-link:hover::before {
+            left: 100%;
+        }
+        .sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(8px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .sidebar .nav-link.active {
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        .sidebar .nav-link i {
+            margin-right: 15px;
+            width: 20px;
+            font-size: 1.1rem;
+        }
+        .sidebar .brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            text-align: center;
+            color: white;
+            font-family: var(--font-heading);
+        }
+        .sidebar .brand span {
+            background: linear-gradient(45deg, var(--accent-color), var(--warning-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .content {
+            margin-left: 280px;
+            padding: 30px;
+            flex: 1;
+            min-height: 100vh;
+        }
+        .sidebar-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+        .sidebar-toggle:hover {
+            background: var(--accent-hover);
+            transform: scale(1.1);
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                width: 250px;
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .sidebar-toggle {
+                display: block;
+            }
+        }
+        .nav-section {
+            margin-bottom: 25px;
+        }
+        .nav-section h6 {
+            color: rgba(255,255,255,0.7);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            margin-bottom: 15px;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+    </style>
+
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; display: flex; align-items: center; justify-content: center;">
+        <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <filter id="softGlow">
+                    <feGaussianBlur stdDeviation="8" result="blur"/>
+                    <feMerge>
+                        <feMergeNode in="blur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+                <radialGradient id="nebulaGrad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#ffd6ff"/>
+                    <stop offset="30%" stop-color="#d580ff"/>
+                    <stop offset="55%" stop-color="#7b5cff"/>
+                    <stop offset="80%" stop-color="#2a144f"/>
+                    <stop offset="100%" stop-color="transparent"/>
+                </radialGradient>
+                <radialGradient id="coreGlow">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="50%" stop-color="#ff9dff"/>
+                    <stop offset="100%" stop-color="transparent"/>
+                </radialGradient>
+            </defs>
+            <circle cx="100" cy="100" r="80" fill="url(#nebulaGrad)" opacity="0.9" filter="url(#softGlow)">
+                <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="30s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="100" cy="100" r="60" fill="url(#nebulaGrad)" opacity="0.6" filter="url(#softGlow)">
+                <animateTransform attributeName="transform" type="rotate" from="360 100 100" to="0 100 100" dur="18s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="100" cy="100" r="14" fill="url(#coreGlow)" filter="url(#softGlow)">
+                <animate attributeName="r" values="12;18;12" dur="1.6s" repeatCount="indefinite"/>
+            </circle>
+            <g opacity="0.9">
+                <circle cx="100" cy="12" r="1.8" fill="#ffffff"/>
+                <circle cx="170" cy="50" r="1.5" fill="#ffe6ff"/>
+                <circle cx="188" cy="100" r="1.7" fill="#ffffff"/>
+                <circle cx="150" cy="160" r="1.4" fill="#d9cfff"/>
+                <circle cx="100" cy="188" r="1.8" fill="#ffffff"/>
+                <circle cx="40" cy="150" r="1.6" fill="#ffe6ff"/>
+                <circle cx="12" cy="100" r="1.7" fill="#ffffff"/>
+                <circle cx="50" cy="40" r="1.5" fill="#d9cfff"/>
+                <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="12s" repeatCount="indefinite"/>
+            </g>
+        </svg>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="brand">
+            <span>Glow & Gloss</span>
+        </div>
+        <nav class="nav flex-column">
+            <div class="nav-section">
+                <h6>Main</h6>
+                <a class="nav-link" href="index.html"><i class="fas fa-home"></i> Home</a>
+                <a class="nav-link" href="products.html"><i class="fas fa-shopping-bag"></i> Products</a>
+                <a class="nav-link" href="about.html"><i class="fas fa-info-circle"></i> About</a>
+                <a class="nav-link active" href="Sposnor.html"><i class="fas fa-handshake"></i> Sponsors</a>
+            </div>
+            <div class="nav-section">
+                <h6>Account</h6>
+                <a class="nav-link" href="orders.html"><i class="fas fa-list"></i> My Orders</a>
+                <a class="nav-link" href="retailer-dashboard.html"><i class="fas fa-store"></i> Retailer Portal</a>
+                <a class="nav-link" href="login.html"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a class="nav-link" href="register.html"><i class="fas fa-user-plus"></i> Register</a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Toggle Button -->
+    <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+        <div class="container-fluid">
+            <button class="sidebar-toggle me-3">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="index.html">
+                <span class="brand-text">Glow & Gloss</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="d-none d-lg-block mx-auto" style="width: 300px;">
+                <form id="nav-search-form" class="position-relative">
+                    <input type="text" id="nav-search-input" class="form-control rounded-pill bg-light border-0 ps-4"
+                        placeholder="Search brands...">
+                    <button type="submit"
+                        class="position-absolute top-50 end-0 translate-middle-y border-0 bg-transparent pe-3 text-muted">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link" href="orders.html">My Orders</a></li>
+                    <li class="nav-item"><a class="nav-link" href="retailer-dashboard.html">Retailer Portal</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="Sposnor.html">Sponsors</a></li>
+                    <li class="nav-item position-relative me-3">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#cartModal">
+                            <i class="fas fa-shopping-cart fs-5"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-count"
+                                style="font-size: 0.6rem;">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link btn btn-outline-dark ms-lg-3 px-4" href="login.html">Login</a></li>
+                    <li class="nav-item"><a class="nav-link btn btn-outline-dark ms-lg-2 px-4 mt-2 mt-lg-0"
+                            href="register.html">Register</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Wrapper with margin for navbar -->
+    <div class="content" style="margin-left: 250px; padding: 20px;">
+
+    <!-- Hero Section -->
+    <header class="hero-section d-flex align-items-center position-relative">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-3 fw-bold mb-4">Our Valued <br><span class="text-accent">Sponsors</span>
+                    </h1>
+                    <p class="lead mb-5 text-muted">Partnerships that drive innovation and excellence in beauty. Join our network of industry leaders and reach millions of beauty enthusiasts worldwide.</p>
+                    <div class="d-flex gap-3">
+                        <a href="mailto:sponsorships@glowandgloss.com" class="btn btn-primary btn-lg px-5 py-3">Become a Sponsor</a>
+                        <a href="#sponsors" class="btn btn-outline-primary btn-lg px-5 py-3">Our Partners</a>
+                    </div>
+                </div>
+                <div class="col-lg-6 mt-5 mt-lg-0 p-0 overflow-hidden">
+                    <div class="antigravity-scene" id="interactive-hero">
+                        <!-- Main Central Orb with Hero Product -->
+                        <div class="glass-orb">
+                            <img src="images/conditioner.png" class="orb-product" alt="Hero Product">
+                            <div class="orb-glow"></div>
+                        </div>
+
+                        <!-- Floating Product Bubbles (Enhanced 3D animation) -->
+                        <div class="floating-bubble b1" style="--d: 1s; --s: 0.8;">
+                            <img src="images/serum.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b2" style="--d: 2s; --s: 1.2;">
+                            <img src="images/shampoo.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b3" style="--d: 0s; --s: 0.9;">
+                            <img src="images/face-cream.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b4" style="--d: 3s; --s: 1.1;">
+                            <img src="images/hair-spa.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b5" style="--d: 1.5s; --s: 0.75;">
+                            <img src="images/serum.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b6" style="--d: 4s; --s: 1.3;">
+                            <img src="images/conditioner.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b7" style="--d: 2.5s; --s: 0.85;">
+                            <img src="images/shampoo.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b8" style="--d: 0.5s; --s: 1.0;">
+                            <img src="images/face-cream.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b9" style="--d: 3.5s; --s: 0.7;">
+                            <img src="images/hair-spa.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b10" style="--d: 1.2s; --s: 1.4;">
+                            <img src="images/serum.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b11" style="--d: 2.8s; --s: 0.6;">
+                            <img src="images/conditioner.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b12" style="--d: 0.8s; --s: 1.1;">
+                            <img src="images/face-cream.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b13" style="--d: 4.2s; --s: 0.9;">
+                            <img src="images/shampoo.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b14" style="--d: 1.8s; --s: 1.3;">
+                            <img src="images/hair-spa.png" alt="Product">
+                        </div>
+                        <div class="floating-bubble b15" style="--d: 3.2s; --s: 0.8;">
+                            <img src="images/serum.png" alt="Product">
+                        </div>
+
+
+                        <div class="dynamic-lines">
+                            <div class="line l1"></div>
+                            <div class="line l2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Sponsors Section -->
+    <section class="py-5 bg-dark">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold text-gradient">Our Valued Partners</h2>
+                <p class="text-muted lead">Collaborating with industry leaders to bring you the best in beauty innovation</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 text-center hover-lift">
+                        <div class="card-body">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-crown fs-2 text-warning"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Gold Partners</h5>
+                            <p class="card-text text-muted">Strategic alliances with premium beauty brands</p>
+                            <span class="badge bg-warning text-dark">Premium Tier</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 text-center hover-lift">
+                        <div class="card-body">
+                            <div class="bg-secondary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-medal fs-2 text-secondary"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Silver Partners</h5>
+                            <p class="card-text text-muted">Growing partnerships with emerging beauty innovators</p>
+                            <span class="badge bg-secondary">Growth Tier</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100 text-center hover-lift">
+                        <div class="card-body">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-award fs-2" style="color: #cd7f32;"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Bronze Partners</h5>
+                            <p class="card-text text-muted">Supportive partnerships with dedicated beauty professionals</p>
+                            <span class="badge" style="background-color: #cd7f32; color: white;">Foundation Tier</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Sponsors -->
+    <section class="py-5 bg-white" id="featured-partners">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold text-gradient">Featured Partners</h2>
+                <p class="text-muted lead">Meet our distinguished sponsors driving beauty innovation</p>
+            </div>
+            <div class="row g-4">
+                <!-- Gold Tier Sponsors -->
+                <div class="col-md-6 partner-card" data-tier="gold">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-crown fs-2 text-warning"></i>
+                            </div>
+                            <span class="badge bg-warning text-dark mb-2">Gold Partner</span>
+                            <h4 class="card-title fw-bold">BeautyTech Innovations</h4>
+                            <p class="card-text text-muted">Leading provider of advanced skincare technology and research.</p>
+                            <div class="mt-3">
+                                <a href="https://beauty-tech-innovations.com" target="_blank" class="text-primary text-decoration-none me-3">Learn More <i class="fas fa-arrow-right ms-1"></i></a>
+                                <div class="d-inline">
+                                    <a href="https://linkedin.com/company/beautytech" target="_blank" class="text-primary me-2"><i class="fab fa-linkedin"></i></a>
+                                    <a href="https://beauty-tech-innovations.com" target="_blank" class="text-info"><i class="fas fa-globe"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 partner-card" data-tier="gold">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-leaf fs-2 text-warning"></i>
+                            </div>
+                            <span class="badge bg-warning text-dark mb-2">Gold Partner</span>
+                            <h4 class="card-title fw-bold">Natural Essence Labs</h4>
+                            <p class="card-text text-muted">Pioneers in organic and sustainable beauty ingredients.</p>
+                            <div class="mt-3">
+                                <a href="https://natural-essence-labs.com" target="_blank" class="text-primary text-decoration-none me-3">Learn More <i class="fas fa-arrow-right ms-1"></i></a>
+                                <div class="d-inline">
+                                    <a href="https://linkedin.com/company/naturalessence" target="_blank" class="text-primary me-2"><i class="fab fa-linkedin"></i></a>
+                                    <a href="https://natural-essence-labs.com" target="_blank" class="text-info"><i class="fas fa-globe"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Silver Tier Sponsors -->
+                <div class="col-md-6 partner-card" data-tier="silver">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-secondary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-palette fs-2 text-secondary"></i>
+                            </div>
+                            <span class="badge bg-secondary mb-2">Silver Partner</span>
+                            <h4 class="card-title fw-bold">Glow Cosmetics</h4>
+                            <p class="card-text text-muted">Premium makeup and skincare products for all skin types.</p>
+                            <div class="mt-3">
+                                <a href="https://glow-cosmetics.com" target="_blank" class="text-primary text-decoration-none me-3">Learn More <i class="fas fa-arrow-right ms-1"></i></a>
+                                <div class="d-inline">
+                                    <a href="https://linkedin.com/company/glowcosmetics" target="_blank" class="text-primary me-2"><i class="fab fa-linkedin"></i></a>
+                                    <a href="https://glow-cosmetics.com" target="_blank" class="text-info"><i class="fas fa-globe"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 partner-card" data-tier="silver">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-secondary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-seedling fs-2 text-secondary"></i>
+                            </div>
+                            <span class="badge bg-secondary mb-2">Silver Partner</span>
+                            <h4 class="card-title fw-bold">Herbal Harmony</h4>
+                            <p class="card-text text-muted">Traditional herbal remedies meeting modern beauty standards.</p>
+                            <div class="mt-3">
+                                <a href="https://herbal-harmony.com" target="_blank" class="text-primary text-decoration-none me-3">Learn More <i class="fas fa-arrow-right ms-1"></i></a>
+                                <div class="d-inline">
+                                    <a href="https://linkedin.com/company/herbalharmony" target="_blank" class="text-primary me-2"><i class="fab fa-linkedin"></i></a>
+                                    <a href="https://herbal-harmony.com" target="_blank" class="text-info"><i class="fas fa-globe"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Additional Gold Tier Partners (Hidden initially) -->
+                <div class="col-md-4 partner-card" data-tier="gold" style="display: none;">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                                <i class="fas fa-flask fs-2 text-warning"></i>
+                            </div>
+                            <span class="badge bg-warning text-dark mb-2">Gold Partner</span>
+                            <h5 class="card-title fw-bold">Pure Science Beauty</h5>
+                            <p class="card-text text-muted small">Clinical-grade beauty formulations.</p>
+                            <div class="mt-2">
+                                <a href="https://pure-science-beauty.com" target="_blank" class="btn btn-sm btn-outline-primary me-1">Website</a>
+                                <a href="https://linkedin.com/company/purescience" target="_blank" class="btn btn-sm btn-outline-info">LinkedIn</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Additional Silver Tier Partners (Hidden initially) -->
+                <div class="col-md-4 partner-card" data-tier="silver" style="display: none;">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-secondary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                                <i class="fas fa-sparkles fs-2 text-secondary"></i>
+                            </div>
+                            <span class="badge bg-secondary mb-2">Silver Partner</span>
+                            <h5 class="card-title fw-bold">Luxe Beauty Co.</h5>
+                            <p class="card-text text-muted small">High-end beauty and wellness products.</p>
+                            <div class="mt-2">
+                                <a href="https://luxe-beauty-co.com" target="_blank" class="btn btn-sm btn-outline-primary me-1">Website</a>
+                                <a href="https://linkedin.com/company/luxebeauty" target="_blank" class="btn btn-sm btn-outline-info">LinkedIn</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Bronze Tier Partners (Hidden initially) -->
+                <div class="col-md-4 partner-card" data-tier="bronze" style="display: none;">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                                <i class="fas fa-recycle fs-2" style="color: #cd7f32;"></i>
+                            </div>
+                            <span class="badge mb-2" style="background-color: #cd7f32; color: white;">Bronze Partner</span>
+                            <h5 class="card-title fw-bold">EcoBeauty Solutions</h5>
+                            <p class="card-text text-muted small">Eco-friendly packaging and sustainable practices.</p>
+                            <div class="mt-2">
+                                <a href="https://ecobeauty-solutions.com" target="_blank" class="btn btn-sm btn-outline-primary me-1">Website</a>
+                                <a href="https://linkedin.com/company/ecobeauty" target="_blank" class="btn btn-sm btn-outline-info">LinkedIn</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 partner-card" data-tier="bronze" style="display: none;">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                                <i class="fas fa-spa fs-2" style="color: #cd7f32;"></i>
+                            </div>
+                            <span class="badge mb-2" style="background-color: #cd7f32; color: white;">Bronze Partner</span>
+                            <h5 class="card-title fw-bold">Wellness & Beauty Co.</h5>
+                            <p class="card-text text-muted small">Holistic approach to beauty and wellness.</p>
+                            <div class="mt-2">
+                                <a href="https://wellness-beauty-co.com" target="_blank" class="btn btn-sm btn-outline-primary me-1">Website</a>
+                                <a href="https://linkedin.com/company/wellnessbeauty" target="_blank" class="btn btn-sm btn-outline-info">LinkedIn</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 partner-card" data-tier="bronze" style="display: none;">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                                <i class="fas fa-heart fs-2" style="color: #cd7f32;"></i>
+                            </div>
+                            <span class="badge mb-2" style="background-color: #cd7f32; color: white;">Bronze Partner</span>
+                            <h5 class="card-title fw-bold">Gentle Touch Labs</h5>
+                            <p class="card-text text-muted small">Sensitive skin care and gentle formulations.</p>
+                            <div class="mt-2">
+                                <a href="https://gentle-touch-labs.com" target="_blank" class="btn btn-sm btn-outline-primary me-1">Website</a>
+                                <a href="https://linkedin.com/company/gentletouch" target="_blank" class="btn btn-sm btn-outline-info">LinkedIn</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Filter Buttons -->
+            <div class="d-flex justify-content-center mt-4 mb-3">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary active" onclick="filterPartners('all', this)">All Partners</button>
+                    <button type="button" class="btn btn-outline-warning" onclick="filterPartners('gold', this)">Gold Tier</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="filterPartners('silver', this)">Silver Tier</button>
+                    <button type="button" class="btn btn-outline-danger" onclick="filterPartners('bronze', this)">Bronze Tier</button>
+                </div>
+            </div>
+            <div class="text-center">
+                <button onclick="showAllPartners()" class="btn btn-outline-primary btn-lg">View All Partners</button>
+                <button onclick="hideAllPartners()" class="btn btn-primary btn-lg ms-2" style="display: none;">Show Featured Partners</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- All Partners Section (Hidden by default) -->
+    <section class="py-5 bg-light" id="all-partners" style="display: none;">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold text-gradient">All Our Partners</h2>
+                <p class="text-muted lead">Complete list of brands and companies we collaborate with</p>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="d-flex justify-content-center mb-5">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary active" onclick="filterPartners('all', this)">All Partners</button>
+                    <button type="button" class="btn btn-outline-warning" onclick="filterPartners('gold', this)">Gold Tier</button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="filterPartners('silver', this)">Silver Tier</button>
+                    <button type="button" class="btn btn-outline-danger" onclick="filterPartners('bronze', this)">Bronze Tier</button>
+                </div>
+            </div>
+
+            <div class="row g-4" id="partners-grid">
+                <!-- Gold Tier Partners -->
+                <div class="col-md-4 partner-card" data-tier="gold">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                                <i class="fas fa-crown fs-2 text-warning"></i>
+                            </div>
+                            <span class="badge bg-warning text-dark mb-2">Gold Partner</span>
+                            <h5 class="card-title fw-bold">BeautyTech Innovations</h5>
+                            <p class="card-text text-muted small">Advanced skincare technology and research.</p>
+                            <div class="mt-2">
+                                <a href="https://beauty-tech-innovations.com" target="_blank" class="btn btn-sm btn-outline-primary me-1">Website</a>
+                                <a href="https://linkedin.com/company/beautytech" target="_blank" class="btn btn-sm btn-outline-info">LinkedIn</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 partner-card" data-tier="gold">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                                <i class="fas fa-leaf fs-2 text-warning"></i>
+                            </div>
+                            <span class="badge bg-warning text-dark mb-2">Gold Partner</span>
+                            <h5 class="card-title fw-bold">Natural Essence Labs</h5>
+                            <p class="card-text text-muted small">Organic and sustainable beauty ingredients.</p>
+                            <div class="mt-2">
+                                <a href="https://natural-essence-labs.com" target="_blank" class="btn btn-sm btn-outline-primary me-1">Website</a>
+                                <a href="https://linkedin.com/company/naturalessence" target="_blank" class="btn btn-sm btn-outline-info">LinkedIn</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 partner-card" data-tier="gold">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                                <i class="fas fa-flask fs-2 text-warning"></i>
+                            </div>
+                            <span class="badge bg-warning text-dark mb-2">Gold Partner</span>
+                            <h5 class="card-title fw-bold">Pure Science Beauty</h5>
+                            <p class="card-text text-muted small">Clinical-grade beauty formulations.</p>
+                            <div class="mt-2">
+                                <a href="https://pure-science-beauty.com" target="_blank" class="btn btn-sm btn-outline-primary me-1">Website</a>
+                                <a href="https://linkedin.com/company/purescience" target="_blank" class="btn btn-sm btn-outline-info">LinkedIn</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Silver Tier Partners -->
+                <div class="col-md-4 partner-card" data-tier="silver">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-secondary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                                <i class="fas fa-palette fs-2 text-secondary"></i>
+                            </div>
+                            <span class="badge bg-secondary mb-2">Silver Partner</span>
+                            <h5 class="card-title fw-bold">Glow Cosmetics</h5>
+                            <p class="card-text text-muted small">Premium makeup and skincare products.</p>
+                            <div class="mt-2">
+                                <a href="https://glow-cosmetics.com" target="_blank" class="btn btn-sm btn-outline-primary me-1">Website</a>
+                                <a href="https://linkedin.com/company/glowcosmetics" target="_blank" class="btn btn-sm btn-outline-info">LinkedIn</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 partner-card" data-tier="silver">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-secondary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                                <i class="fas fa-seedling fs-2 text-secondary"></i>
+                            </div>
+                            <span class="badge bg-secondary mb-2">Silver Partner</span>
+                            <h5 class="card-title fw-bold">Herbal Harmony</h5>
+                            <p class="card-text text-muted small">Traditional herbal remedies and beauty.</p>
+                            <div class="mt-2">
+                                <a href="https://herbal-harmony.com" target="_blank" class="btn btn-sm btn-outline-primary me-1">Website</a>
+                                <a href="https://linkedin.com/company/herbalharmony" target="_blank" class="btn btn-sm btn-outline-info">LinkedIn</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 partner-card" data-tier="silver">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-secondary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                                <i class="fas fa-sparkles fs-2 text-secondary"></i>
+                            </div>
+                            <span class="badge bg-secondary mb-2">Silver Partner</span>
+                            <h5 class="card-title fw-bold">Luxe Beauty Co.</h5>
+                            <p class="card-text text-muted small">High-end beauty and wellness products.</p>
+                            <div class="mt-2">
+                                <a href="https://luxe-beauty-co.com" target="_blank" class="btn btn-sm btn-outline-primary me-1">Website</a>
+                                <a href="https://linkedin.com/company/luxebeauty" target="_blank" class="btn btn-sm btn-outline-info">LinkedIn</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bronze Tier Partners -->
+                <div class="col-md-4 partner-card" data-tier="bronze">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                                <i class="fas fa-recycle fs-2" style="color: #cd7f32;"></i>
+                            </div>
+                            <span class="badge mb-2" style="background-color: #cd7f32; color: white;">Bronze Partner</span>
+                            <h5 class="card-title fw-bold">EcoBeauty Solutions</h5>
+                            <p class="card-text text-muted small">Eco-friendly packaging and sustainable practices.</p>
+                            <div class="mt-2">
+                                <a href="https://ecobeauty-solutions.com" target="_blank" class="btn btn-sm btn-outline-primary me-1">Website</a>
+                                <a href="https://linkedin.com/company/ecobeauty" target="_blank" class="btn btn-sm btn-outline-info">LinkedIn</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 partner-card" data-tier="bronze">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                                <i class="fas fa-spa fs-2" style="color: #cd7f32;"></i>
+                            </div>
+                            <span class="badge mb-2" style="background-color: #cd7f32; color: white;">Bronze Partner</span>
+                            <h5 class="card-title fw-bold">Wellness & Beauty Co.</h5>
+                            <p class="card-text text-muted small">Holistic approach to beauty and wellness.</p>
+                            <div class="mt-2">
+                                <a href="https://wellness-beauty-co.com" target="_blank" class="btn btn-sm btn-outline-primary me-1">Website</a>
+                                <a href="https://linkedin.com/company/wellnessbeauty" target="_blank" class="btn btn-sm btn-outline-info">LinkedIn</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 partner-card" data-tier="bronze">
+                    <div class="card border-0 shadow-sm h-100 hover-lift">
+                        <div class="card-body text-center">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                                <i class="fas fa-heart fs-2" style="color: #cd7f32;"></i>
+                            </div>
+                            <span class="badge mb-2" style="background-color: #cd7f32; color: white;">Bronze Partner</span>
+                            <h5 class="card-title fw-bold">Gentle Touch Labs</h5>
+                            <p class="card-text text-muted small">Sensitive skin care and gentle formulations.</p>
+                            <div class="mt-2">
+                                <a href="https://gentle-touch-labs.com" target="_blank" class="btn btn-sm btn-outline-primary me-1">Website</a>
+                                <a href="https://linkedin.com/company/gentletouch" target="_blank" class="btn btn-sm btn-outline-info">LinkedIn</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <button onclick="hideAllPartners()" class="btn btn-primary btn-lg">Show Featured Partners</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partnership Benefits -->
+    <section class="py-5 bg-gradient-to-r from-blue-50 to-purple-50">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold text-gradient">Partnership Benefits</h2>
+                <p class="text-muted lead">What makes partnering with Glow & Gloss special</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4 text-center">
+                    <div class="card border-0 shadow-sm h-100 bg-white">
+                        <div class="card-body">
+                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-users text-white fs-4"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Targeted Audience</h5>
+                            <p class="card-text text-muted">Reach millions of beauty enthusiasts actively seeking premium products.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="card border-0 shadow-sm h-100 bg-white">
+                        <div class="card-body">
+                            <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-chart-line text-white fs-4"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Brand Visibility</h5>
+                            <p class="card-text text-muted">Enhanced brand recognition through strategic placement and co-marketing.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="card border-0 shadow-sm h-100 bg-white">
+                        <div class="card-body">
+                            <div class="bg-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                <i class="fas fa-handshake text-white fs-4"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Strategic Alliance</h5>
+                            <p class="card-text text-muted">Collaborative opportunities for product development and market expansion.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-5 bg-primary text-white">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <h3 class="display-4 fw-bold">50+</h3>
+                    <p class="mb-0">Partner Brands</p>
+                </div>
+                <div class="col-md-3">
+                    <h3 class="display-4 fw-bold">1M+</h3>
+                    <p class="mb-0">Customers Reached</p>
+                </div>
+                <div class="col-md-3">
+                    <h3 class="display-4 fw-bold">500+</h3>
+                    <p class="mb-0">Events Sponsored</p>
+                </div>
+                <div class="col-md-3">
+                    <h3 class="display-4 fw-bold">95%</h3>
+                    <p class="mb-0">Satisfaction Rate</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Spline Background Section - Bottom 50% -->
+    <section class="spline-background-section position-relative">
+        <div class="spline-background-container">
+            <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.51/build/spline-viewer.js"></script>
+            <spline-viewer
+                url="https://prod.spline.design/R4WwicCdQvcSRT13/scene.splinecode"
+                class="spline-background-viewer"
+            ></spline-viewer>
+        </div>
+        <div class="spline-background-overlay">
+            <div class="container py-5">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <h2 class="display-4 fw-bold text-white mb-4">Join Our Network</h2>
+                        <p class="lead text-white-50 mb-4">Become part of our growing community of innovative beauty brands and partners.</p>
+                        <a href="mailto:sponsorships@glowandgloss.com" class="btn btn-light btn-lg px-5 py-3">Get Started Today</a>
+                    </div>
+                    <div class="col-lg-6 mt-5 mt-lg-0">
+                        <div class="row g-4">
+                            <div class="col-6">
+                                <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-3 p-4 text-center">
+                                    <i class="fas fa-globe-americas text-white fs-2 mb-3"></i>
+                                    <h4 class="text-white fw-bold">Global</h4>
+                                    <p class="text-white-50 small mb-0">Worldwide Reach</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-3 p-4 text-center">
+                                    <i class="fas fa-chart-pie text-white fs-2 mb-3"></i>
+                                    <h4 class="text-white fw-bold">Analytics</h4>
+                                    <p class="text-white-50 small mb-0">Data-Driven</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-3 p-4 text-center">
+                                    <i class="fas fa-bullhorn text-white fs-2 mb-3"></i>
+                                    <h4 class="text-white fw-bold">Marketing</h4>
+                                    <p class="text-white-50 small mb-0">Smart Campaigns</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-3 p-4 text-center">
+                                    <i class="fas fa-headset text-white fs-2 mb-3"></i>
+                                    <h4 class="text-white fw-bold">Support</h4>
+                                    <p class="text-white-50 small mb-0">24/7 Assistance</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .spline-background-section {
+            position: relative;
+            min-height: 50vh;
+            overflow: hidden;
+        }
+
+        .spline-background-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .spline-background-viewer {
+            width: 100%;
+            height: 100%;
+            min-height: 50vh;
+            background: transparent;
+        }
+
+        .spline-background-overlay {
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 50%, transparent 100%);
+            min-height: 50vh;
+            display: flex;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .spline-background-section {
+                min-height: auto;
+            }
+
+            .spline-background-overlay {
+                min-height: auto;
+                padding: 60px 0;
+            }
+        }
+    </style>
+
+    <!-- Footer -->
+    <div id="footer-placeholder"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Loading screen
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.display = 'none';
+            }, 2000);
+        });
+
+        // Sidebar toggle
+        document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('show');
+        });
+
+        // Animate stats
+        function animateStats() {
+            const stats = document.querySelectorAll('.stat-number');
+            stats.forEach(stat => {
+                const target = parseInt(stat.getAttribute('data-target'));
+                const increment = target / 100;
+                let current = 0;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        stat.textContent = target.toLocaleString();
+                        clearInterval(timer);
+                    } else {
+                        stat.textContent = Math.floor(current).toLocaleString();
+                    }
+                }, 30);
+            });
+        }
+
+        // Intersection Observer for stats animation
+        const statsSection = document.querySelector('.stats-section');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateStats();
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+        observer.observe(statsSection);
+
+        // Load footer
+        fetch('footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-placeholder').innerHTML = data;
+            });
+
+        // Spline 3D Interactive Controls
+        let splineViewer = null;
+        let currentRotation = 0;
+        let currentZoom = 1;
+
+        // Initialize Spline viewer when loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for Spline to load
+            setTimeout(() => {
+                const splineElement = document.querySelector('spline-viewer');
+                if (splineElement) {
+                    splineViewer = splineElement;
+
+                    // Add mouse interaction effects
+                    splineElement.addEventListener('mousedown', function() {
+                        addPulseEffect();
+                    });
+
+                    splineElement.addEventListener('touchstart', function() {
+                        addPulseEffect();
+                    });
+
+                    // Add scroll interaction
+                    splineElement.addEventListener('wheel', function(e) {
+                        e.preventDefault();
+                        const zoomDelta = e.deltaY > 0 ? 0.9 : 1.1;
+                        zoomSpline(zoomDelta);
+                    });
+                }
+            }, 3000);
+        });
+
+        // Creative Spline Control Functions
+        function rotateSpline() {
+            if (!splineViewer) return;
+
+            currentRotation += 45;
+            splineViewer.style.transform = `rotateY(${currentRotation}deg) scale(${currentZoom})`;
+            addPulseEffect();
+
+            // Add orbiting logo speed boost
+            const logos = document.querySelectorAll('.orbit-logo');
+            logos.forEach(logo => {
+                logo.style.animationDuration = '8s';
+                setTimeout(() => {
+                    logo.style.animationDuration = '15s';
+                }, 2000);
+            });
+        }
+
+        function zoomSpline(multiplier = 1.2) {
+            if (!splineViewer) return;
+
+            currentZoom *= multiplier;
+            currentZoom = Math.max(0.5, Math.min(2, currentZoom)); // Clamp between 0.5 and 2
+            splineViewer.style.transform = `rotateY(${currentRotation}deg) scale(${currentZoom})`;
+            addPulseEffect();
+
+            // Dynamic particle effects based on zoom
+            const particles = document.querySelectorAll('.particle');
+            particles.forEach(particle => {
+                const scale = currentZoom > 1 ? 1.5 : 0.8;
+                particle.style.transform = `scale(${scale})`;
+            });
+        }
+
+        function resetSpline() {
+            currentRotation = 0;
+            currentZoom = 1;
+            if (splineViewer) {
+                splineViewer.style.transform = `rotateY(0deg) scale(1)`;
+            }
+
+            // Reset all effects
+            const logos = document.querySelectorAll('.orbit-logo');
+            logos.forEach(logo => {
+                logo.style.animationDuration = '15s';
+            });
+
+            const particles = document.querySelectorAll('.particle');
+            particles.forEach(particle => {
+                particle.style.transform = 'scale(1)';
+            });
+
+            addPulseEffect();
+        }
+
+        function addPulseEffect() {
+            const container = document.querySelector('.spline-container');
+            if (container) {
+                container.style.boxShadow = '0 20px 60px rgba(0,0,0,0.8), 0 0 30px rgba(102, 126, 234, 0.4)';
+                setTimeout(() => {
+                    container.style.boxShadow = '0 20px 60px rgba(0,0,0,0.5)';
+                }, 500);
+            }
+
+            // Add ripple effect to info cards
+            const cards = document.querySelectorAll('.info-card');
+            cards.forEach(card => {
+                card.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    card.style.transform = 'scale(1)';
+                }, 300);
+            });
+        }
+
+        // Auto-interaction for engagement
+        setInterval(() => {
+            if (Math.random() > 0.7) { // 30% chance every 10 seconds
+                const actions = [rotateSpline, () => zoomSpline(1.1), () => zoomSpline(0.9)];
+                const randomAction = actions[Math.floor(Math.random() * actions.length)];
+                randomAction();
+            }
+        }, 10000);
+
+        // Mouse movement interaction
+        document.addEventListener('mousemove', function(e) {
+            const splineSection = document.querySelector('.spline-container');
+            if (!splineSection) return;
+
+            const rect = splineSection.getBoundingClientRect();
+            const isHovering = e.clientX >= rect.left && e.clientX <= rect.right &&
+                              e.clientY >= rect.top && e.clientY <= rect.bottom;
+
+            if (isHovering && splineViewer) {
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const deltaX = (e.clientX - centerX) / rect.width;
+                const deltaY = (e.clientY - centerY) / rect.height;
+
+                const rotateX = deltaY * 10;
+                const rotateY = deltaX * 10;
+
+                splineViewer.style.transform = `rotateY(${currentRotation + rotateY}deg) rotateX(${rotateX}deg) scale(${currentZoom})`;
+            }
+        });
+
+        // Keyboard controls for accessibility
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            switch(e.key) {
+                case 'r':
+                case 'R':
+                    rotateSpline();
+                    break;
+                case 'z':
+                case 'Z':
+                    zoomSpline(1.2);
+                    break;
+                case 'x':
+                case 'X':
+                    zoomSpline(0.8);
+                    break;
+                case ' ':
+                    e.preventDefault();
+                    resetSpline();
+                    break;
+            }
+        });
+
+        // Add tooltip for keyboard controls
+        const controls = document.querySelector('.spline-controls');
+        if (controls) {
+            const tooltip = document.createElement('div');
+            tooltip.className = 'keyboard-tooltip';
+            tooltip.innerHTML = `
+                <small class="text-muted">
+                    <i class="fas fa-keyboard me-1"></i>
+                    Use R (rotate), Z/X (zoom), Space (reset)
+                </small>
+            `;
+            tooltip.style.cssText = `
+                position: absolute;
+                top: -30px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 5px 10px;
+                border-radius: 5px;
+                font-size: 0.75rem;
+                opacity: 0;
+                transition: opacity 0.3s;
+                pointer-events: none;
+            `;
+            controls.appendChild(tooltip);
+
+            controls.addEventListener('mouseenter', () => {
+                tooltip.style.opacity = '1';
+            });
+
+            controls.addEventListener('mouseleave', () => {
+                tooltip.style.opacity = '0';
+            });
+        }
+
+        // Partner Section Functions
+        function showAllPartners() {
+            const hiddenPartners = document.querySelectorAll('.partner-card[style*="display: none"]');
+            const viewAllBtn = document.querySelector('button[onclick="showAllPartners()"]');
+            const showFeaturedBtn = document.querySelector('button[onclick="hideAllPartners()"]');
+
+            // Show all hidden partner cards with animation
+            hiddenPartners.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeInUp 0.5s ease-out forwards';
+                }, index * 100);
+            });
+
+            // Toggle buttons
+            if (viewAllBtn) viewAllBtn.style.display = 'none';
+            if (showFeaturedBtn) showFeaturedBtn.style.display = 'inline-block';
+        }
+
+        function hideAllPartners() {
+            const allPartners = document.querySelectorAll('.partner-card');
+            const extraPartners = Array.from(allPartners).slice(4); // Hide partners after the first 4
+            const viewAllBtn = document.querySelector('button[onclick="showAllPartners()"]');
+            const showFeaturedBtn = document.querySelector('button[onclick="hideAllPartners()"]');
+
+            // Hide extra partner cards
+            extraPartners.forEach(card => {
+                card.style.display = 'none';
+            });
+
+            // Toggle buttons
+            if (viewAllBtn) viewAllBtn.style.display = 'inline-block';
+            if (showFeaturedBtn) showFeaturedBtn.style.display = 'none';
+        }
+
+        function filterPartners(tier, button) {
+            const partnerCards = document.querySelectorAll('.partner-card');
+            const filterButtons = document.querySelectorAll('.btn-group .btn');
+
+            // Update active button
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            if (button) button.classList.add('active');
+
+            // Filter cards
+            partnerCards.forEach(card => {
+                if (tier === 'all') {
+                    card.style.display = 'block';
+                    // Add fade-in animation
+                    card.style.animation = 'fadeInUp 0.5s ease-out forwards';
+                } else {
+                    if (card.getAttribute('data-tier') === tier) {
+                        card.style.display = 'block';
+                        card.style.animation = 'fadeInUp 0.5s ease-out forwards';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Add click handlers for partner links
+        document.addEventListener('DOMContentLoaded', function() {
+            // Make sure all partner links open in new tabs
+            const partnerLinks = document.querySelectorAll('.partner-card a[target="_blank"]');
+            partnerLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Add click tracking or analytics here if needed
+                    console.log('Partner link clicked:', this.href);
+                });
+            });
+
+            // Add hover effects for partner cards
+            const partnerCards = document.querySelectorAll('.partner-card');
+            partnerCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px) scale(1.02)';
+                    this.style.boxShadow = '0 10px 30px rgba(0,0,0,0.15)';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                    this.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+                });
+            });
+
+            // Add click effects for buttons
+            const actionButtons = document.querySelectorAll('.btn');
+            actionButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Add ripple effect
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                });
+            });
+        });
+
+        // Add smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

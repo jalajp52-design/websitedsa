@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distributor Dashboard | Glow & Gloss</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .inventory-alert {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <span class="brand-text" style="font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.5rem; background: linear-gradient(45deg, #ff6b6b, #feca57); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Glow & Gloss</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="distributor-dashboard.html">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link global-logout-btn" href="#">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-5 fw-bold text-primary">Distributor Dashboard</h1>
+                <p class="text-muted">Manage your inventory, track sales, and oversee shipments.</p>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <h6 class="text-uppercase fw-bold mb-2">Total Sales</h6>
+                    <h3 class="fw-bold mb-0" id="stat-sales">$0.00</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <h6 class="text-uppercase fw-bold mb-2">Orders Shipped</h6>
+                    <h3 class="fw-bold mb-0" id="stat-shipped">0</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <h6 class="text-uppercase fw-bold mb-2">Products in Stock</h6>
+                    <h3 class="fw-bold mb-0" id="stat-products">0</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <h6 class="text-uppercase fw-bold mb-2">Pending Shipments</h6>
+                    <h3 class="fw-bold mb-0" id="stat-pending">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-6">
+                <div class="dashboard-card">
+                    <h5 class="fw-bold mb-3">Sales Trend (Last 7 Days)</h5>
+                    <div class="chart-container">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="dashboard-card">
+                    <h5 class="fw-bold mb-3">Shipment Status</h5>
+                    <div class="chart-container">
+                        <canvas id="shipmentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Management -->
+        <div class="row g-4 mb-5">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">Product Inventory</h5>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">Add Product</button>
+                    </div>
+                    <div id="inventory-alerts"></div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Category</th>
+                                    <th>Price</th>
+                                    <th>Stock Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-table">
+                                <!-- Products loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipment Tracking -->
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <h5 class="fw-bold mb-3">Recent Shipments</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="shipments-table">
+                                <!-- Shipments loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-product-form">
+                        <div class="mb-3">
+                            <label class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="product-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" id="product-category" required>
+                                <option value="Shampoo">Shampoo</option>
+                                <option value="Conditioner">Conditioner</option>
+                                <option value="Hair Spa">Hair Spa</option>
+                                <option value="Skincare">Skincare</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Price</label>
+                            <input type="number" class="form-control" id="product-price" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="product-description" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Image URL</label>
+                            <input type="url" class="form-control" id="product-image" value="images/shampoo.png">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Product</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="config.js"></script>
+    <script>
+        $(document).ready(function() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (!currentUser || currentUser.role !== 'distributor') {
+                alert('Access denied. Distributors only.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Logout
+            $('.global-logout-btn').on('click', function(e) {
+                e.preventDefault();
+                sessionStorage.removeItem('currentUser');
+                window.location.reload();
+            });
+
+            // Load Dashboard Data
+            loadDashboardStats();
+            loadInventory();
+            loadShipments();
+            loadCharts();
+
+            function loadDashboardStats() {
+                // Fetch orders for this distributor
+                $.get(`${window.API.orders}?role=distributor`, function(orders) {
+                    let totalSales = 0;
+                    let shipped = 0;
+                    let pending = 0;
+
+                    orders.forEach(order => {
+                        order.items.forEach(item => {
+                            if (item.distributor === currentUser.name) {
+                                totalSales += item.price * item.quantity;
+                                if (order.shipmentStatus === 'shipped') shipped++;
+                                if (order.shipmentStatus === 'pending') pending++;
+                            }
+                        });
+                    });
+
+                    $('#stat-sales').text('$' + totalSales.toFixed(2));
+                    $('#stat-shipped').text(shipped);
+                    $('#stat-pending').text(pending);
+                });
+            }
+
+            function loadInventory() {
+                // Load products from API and local storage
+                $.get(window.API.products, function(products) {
+                    const extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
+                    const allProducts = [...products, ...extraProducts].filter(p => p.distributor === currentUser.name);
+
+                    $('#stat-products').text(allProducts.length);
+
+                    const $tbody = $('#inventory-table');
+                    $tbody.empty();
+
+                    allProducts.forEach(product => {
+                        $tbody.append(`
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="${product.image}" width="40" class="me-2 rounded">
+                                        <div>
+                                            <div class="fw-bold">${product.name}</div>
+                                            <small class="text-muted">${product.description}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>${product.category}</td>
+                                <td>$${parseFloat(product.price).toFixed(2)}</td>
+                                <td><span class="badge bg-success">In Stock</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary me-1">Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger remove-product-btn" data-product-id="${product.id}">Remove</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                });
+            }
+
+            function loadShipments() {
+                $.get(`${window.API.orders}?role=distributor`, function(orders) {
+                    const $tbody = $('#shipments-table');
+                    $tbody.empty();
+
+                    orders.slice(0, 10).forEach(order => { // Show recent 10
+                        const items = order.items.filter(item => item.distributor === currentUser.name);
+                        if (items.length === 0) return;
+
+                        const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+                        const statusBadge = order.shipmentStatus === 'shipped' ? 'bg-primary' :
+                                          order.shipmentStatus === 'delivered' ? 'bg-success' : 'bg-warning';
+
+                        $tbody.append(`
+                            <tr>
+                                <td>${order.orderId}</td>
+                                <td>${order.shippingDetails?.firstName} ${order.shippingDetails?.lastName}</td>
+                                <td>${items.length} item(s)</td>
+                                <td>$${total.toFixed(2)}</td>
+                                <td><span class="badge ${statusBadge}">${order.shipmentStatus}</span></td>
+                                <td>
+                                    <select class="form-select form-select-sm status-update" data-order-id="${order.id}">
+                                        <option value="pending" ${order.shipmentStatus === 'pending' ? 'selected' : ''}>Pending</option>
+                                        <option value="shipped" ${order.shipmentStatus === 'shipped' ? 'selected' : ''}>Shipped</option>
+                                        <option value="delivered" ${order.shipmentStatus === 'delivered' ? 'selected' : ''}>Delivered</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                });
+            }
+
+            function loadCharts() {
+                // Sales Chart (mock data for demo)
+                const salesCtx = document.getElementById('salesChart').getContext('2d');
+                new Chart(salesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Sales ($)',
+                            data: [120, 150, 180, 200, 170, 190, 210],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+
+                // Shipment Status Chart
+                const shipmentCtx = document.getElementById('shipmentChart').getContext('2d');
+                new Chart(shipmentCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Pending', 'Shipped', 'Delivered'],
+                        datasets: [{
+                            data: [5, 12, 8],
+                            backgroundColor: ['#ffc107', '#007bff', '#28a745']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            // Handle status updates
+            $(document).on('change', '.status-update', function() {
+                const orderId = $(this).data('order-id');
+                const newStatus = $(this).val();
+
+                $.ajax({
+                    url: window.API.updateOrder(orderId),
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ shipmentStatus: newStatus }),
+                    success: function() {
+                        alert('Status updated successfully!');
+                        loadShipments(); // Refresh
+                    },
+                    error: function() {
+                        alert('Failed to update status.');
+                    }
+                });
+            });
+
+            // Add Product Form
+            $('#add-product-form').on('submit', function(e) {
+                e.preventDefault();
+
+                const newProduct = {
+                    name: $('#product-name').val(),
+                    category: $('#product-category').val(),
+                    price: parseFloat($('#product-price').val()),
+                    description: $('#product-description').val(),
+                    image: $('#product-image').val(),
+                    distributor: currentUser.name
+                };
+
+                // Send to server API
+                $.ajax({
+                    url: window.API.products,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(newProduct),
+                    success: function(data) {
+                        // Also save locally for immediate display
+                        let extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
+                        const localItem = { ...newProduct, id: data.productId };
+                        extraProducts.push(localItem);
+                        localStorage.setItem('extraProducts', JSON.stringify(extraProducts));
+
+                        $('#addProductModal').modal('hide');
+                        $(this)[0].reset();
+                        loadInventory();
+                        alert('Product added successfully!');
+                    },
+                    error: function(xhr) {
+                        alert('Error adding product: ' + (xhr.responseJSON?.error || 'Unknown error'));
+                    }
+                });
+            });
+
+            // Remove Product
+            $(document).on('click', '.remove-product-btn', function() {
+                const productId = $(this).data('product-id');
+
+                if (confirm('Are you sure you want to remove this product?')) {
+                    let extraProducts = JSON.parse(localStorage.getItem('extraProducts') || '[]');
+                    extraProducts = extraProducts.filter(p => p.id !== productId);
+                    localStorage.setItem('extraProducts', JSON.stringify(extraProducts));
+
+                    loadInventory();
+                    alert('Product removed successfully!');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
