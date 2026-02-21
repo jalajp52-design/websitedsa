@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Diagnostics</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #f0f0f0; }
+        .section { background: white; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .good { color: green; font-weight: bold; }
+        .bad { color: red; font-weight: bold; }
+        .code { background: #f5f5f5; padding: 10px; border-left: 3px solid #667eea; margin: 10px 0; overflow-x: auto; }
+        button { padding: 10px; background: #667eea; color: white; border: none; border-radius: 3px; cursor: pointer; margin: 5px; }
+        button:hover { background: #5568d3; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Checkout Diagnostics</h1>
+    
+    <div class="section">
+        <h2>1. Config Loading</h2>
+        <p id="config-status">Checking...</p>
+        <div class="code">
+            <strong>window.API:</strong>
+            <pre id="api-config">Loading...</pre>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>2. Cart Data</h2>
+        <p id="cart-status">Checking...</p>
+        <div class="code">
+            <strong>localStorage.cart:</strong>
+            <pre id="cart-data">Loading...</pre>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>3. Test API Call</h2>
+        <p>
+            <button onclick="testHeadersOnly()">Test Headers Only (HEAD)</button>
+            <button onclick="testApiCall()">Test Full API Call (POST)</button>
+        </p>
+        <div class="code" id="test-result">Results will appear here...</div>
+    </div>
+
+    <div class="section">
+        <h2>4. Current User</h2>
+        <div class="code">
+            <strong>sessionStorage.currentUser:</strong>
+            <pre id="user-data">Loading...</pre>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        // Check config loading
+        console.log('Checking configuration...');
+        
+        setTimeout(() => {
+            const configSection = document.getElementById('config-status');
+            const apiConfig = document.getElementById('api-config');
+            
+            if (window.API && window.API.orders) {
+                configSection.innerHTML = '<span class="good">✓ Config loaded successfully</span>';
+                apiConfig.textContent = JSON.stringify(window.API, null, 2);
+            } else {
+                configSection.innerHTML = '<span class="bad">✗ config.js not loaded or window.API not set</span>';
+                apiConfig.textContent = 'window.API = ' + (window.API ? JSON.stringify(window.API, null, 2) : 'undefined');
+            }
+
+            // Check cart
+            const cartData = JSON.parse(localStorage.getItem('cart') || '[]');
+            const cartStatus = document.getElementById('cart-status');
+            const cartDisplay = document.getElementById('cart-data');
+            
+            if (cartData.length > 0) {
+                cartStatus.innerHTML = `<span class="good">✓ Cart has ${cartData.length} item(s)</span>`;
+            } else {
+                cartStatus.innerHTML = '<span class="bad">✗ Cart is empty</span>';
+            }
+            cartDisplay.textContent = JSON.stringify(cartData, null, 2);
+
+            // Check user
+            const userData = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+            const userDisplay = document.getElementById('user-data');
+            if (userData) {
+                userDisplay.textContent = JSON.stringify(userData, null, 2);
+            } else {
+                userDisplay.textContent = 'null (not logged in)';
+            }
+        }, 100);
+
+        async function testHeadersOnly() {
+            const resultDiv = document.getElementById('test-result');
+            resultDiv.innerHTML = '<strong>Testing OPTIONS request...</strong><br>';
+            
+            try {
+                const response = await fetch(window.API.orders, {
+                    method: 'OPTIONS'
+                });
+                resultDiv.innerHTML += `<br><span class="good">✓ CORS Headers OK</span>`;
+                resultDiv.innerHTML += `<br>Status: ${response.status}`;
+                resultDiv.innerHTML += `<br>Access-Control-Allow-Origin: ${response.headers.get('access-control-allow-origin')}`;
+            } catch (err) {
+                resultDiv.innerHTML += `<br><span class="bad">✗ Error: ${err.message}</span>`;
+            }
+        }
+
+        async function testApiCall() {
+            const resultDiv = document.getElementById('test-result');
+            resultDiv.innerHTML = '<strong>Testing POST request...</strong><br>';
+            
+            const testOrder = {
+                orderId: 'DIAG-' + Date.now(),
+                user: 'diagnostic@test.com',
+                items: [{id: 1, name: 'Test', price: 100, quantity: 1, distributor: 'Test', image: 'test.png'}],
+                total: 100,
+                date: new Date().toISOString(),
+                status: 'Pending',
+                shipmentStatus: 'pending',
+                shippingDetails: {}
+            };
+
+            console.log('Sending test order:', testOrder);
+            console.log('API URL:', window.API.orders);
+
+            try {
+                const response = await fetch(window.API.orders, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testOrder)
+                });
+
+                const text = await response.text();
+                console.log('Raw Response:', text);
+
+                try {
+                    const data = JSON.parse(text);
+                    resultDiv.innerHTML += `<br><span class="good">✓ API Response OK (Status ${response.status})</span>`;
+                    resultDiv.innerHTML += `<br><strong>Response:</strong>`;
+                    resultDiv.innerHTML += `<br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } catch (jsonErr) {
+                    resultDiv.innerHTML += `<br><span class="bad">✗ Invalid JSON Response</span>`;
+                    resultDiv.innerHTML += `<br><strong>Response (first 500 chars):</strong>`;
+                    resultDiv.innerHTML += `<br><pre>${text.substring(0, 500)}</pre>`;
+                }
+            } catch (err) {
+                console.error('Test Error:', err);
+                resultDiv.innerHTML += `<br><span class="bad">✗ Error: ${err.message}</span>`;
+                resultDiv.innerHTML += `<br><pre>${err.stack}</pre>`;
+            }
+        }
+    </script>
+</body>
+</html>
