@@ -55,8 +55,12 @@ $(document).ready(function () {
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                     <li><a class="dropdown-item" href="orders.html"><i class="fas fa-shopping-bag me-2"></i>My Orders</a></li>
-                    ${currentUser.role === 'distributor' ? '<li><a class="dropdown-item" href="distributor-dashboard.html"><i class="fas fa-chart-line me-2"></i>Distributor Dashboard</a></li><li><a class="dropdown-item" href="products.html"><i class="fas fa-plus me-2"></i>Add Products</a></li>' : ''}
-                    ${currentUser.role === 'retailer' ? '<li><a class="dropdown-item" href="retailer-dashboard.html"><i class="fas fa-chart-line me-2"></i>Retailer Dashboard</a></li><li><a class="dropdown-item" href="products.html"><i class="fas fa-plus me-2"></i>Add Products</a></li>' : ''}
+                    ${isRetailer ? `
+                        <li><hr class="dropdown-divider"></li>
+                        <li class="dropdown-header text-uppercase small fw-bold">Management</li>
+                        <li><a class="dropdown-item" href="${currentUser.role === 'distributor' ? 'distributor-dashboard.html' : 'retailer-dashboard.html'}"><i class="fas fa-chart-line me-2"></i>Dashboard</a></li>
+                        <li><a class="dropdown-item" href="products.html#add-section" onclick="$('#addModal').modal('show')"><i class="fas fa-plus me-2"></i>Add Products</a></li>
+                    ` : ''}
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item global-logout-btn" href="#"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                 </ul>
@@ -74,14 +78,24 @@ $(document).ready(function () {
             $(this).attr('src', fallbackUrl);
         });
 
-        // Show retailer-specific elements
+        // Show/Hide retailer-specific elements (like Add Product button)
         if (isRetailer) {
             $('.btn[data-bs-target="#addModal"]').show();
+            // Update all dashboard links
+            const dashboardUrl = currentUser.role === 'distributor' ? 'distributor-dashboard.html' : 'retailer-dashboard.html';
+            $('.nav-link[href="retailer-dashboard.html"]').attr('href', dashboardUrl).parent().show();
+            $('a:contains("Retailer Portal")').attr('href', dashboardUrl);
+            $('a:contains("Retailer Dashboard")').attr('href', dashboardUrl);
+        } else {
+            $('.btn[data-bs-target="#addModal"]').hide();
+            $('.nav-link[href="retailer-dashboard.html"]').parent().hide();
+            $('a:contains("Retailer Portal")').parent().hide();
         }
     } else {
         // Hide retailer-specific elements when not logged in
         $('.nav-link[href="orders.html"]').parent().hide();
         $('.nav-link[href="retailer-dashboard.html"]').parent().hide();
+        $('a:contains("Retailer Portal")').parent().hide();
         $('.btn[data-bs-target="#addModal"]').hide();
     }
 
@@ -290,6 +304,14 @@ $(document).ready(function () {
 
     // Cart Functionality
     let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+    // Clean cart of invalid items on load
+    cart = cart.filter(item => {
+        const price = parseFloat(item.price);
+        return !isNaN(price) && price > 0 && item.name && item.id;
+    });
+    localStorage.setItem('cart', JSON.stringify(cart));
+
     updateCartCount();
 
     // Add to Cart Click Handler (Event Delegation)
@@ -341,7 +363,10 @@ $(document).ready(function () {
     }
 
     function calculateTotal() {
-        return cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+        return cart.reduce((sum, item) => {
+            const price = parseFloat(item.price) || 0;
+            return sum + (price * item.quantity);
+        }, 0);
     }
 
     function renderCart() {
@@ -355,12 +380,13 @@ $(document).ready(function () {
         }
 
         cart.forEach((item, index) => {
+            const displayPrice = parseFloat(item.price) || 0;
             $cartList.append(`
                 <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
                     <img src="${item.image}" width="50" class="me-3">
                     <div class="flex-grow-1">
                         <h6 class="mb-0">${item.name}</h6>
-                        <small class="text-muted">$${item.price} x ${item.quantity}</small>
+                        <small class="text-muted">$${displayPrice.toFixed(2)} x ${item.quantity}</small>
                     </div>
                     <div class="text-end">
                         <button class="btn btn-sm text-danger remove-item" data-index="${index}"><i class="fas fa-trash"></i></button>
@@ -391,29 +417,77 @@ $(document).ready(function () {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ shipmentStatus: newStatus })
         })
-        .then(response => {
-            if (response.ok) {
-                // Update the badge color
-                const $badge = $(this).closest('.card-body').find('.badge');
-                $badge.removeClass('bg-warning bg-primary bg-success');
-                if (newStatus === 'shipped') {
-                    $badge.addClass('bg-primary');
-                } else if (newStatus === 'delivered') {
-                    $badge.addClass('bg-success');
-                } else {
-                    $badge.addClass('bg-warning');
-                }
-                $badge.text(newStatus);
+            .then(response => {
+                if (response.ok) {
+                    // Update the badge color
+                    const $badge = $(this).closest('.card-body').find('.badge');
+                    $badge.removeClass('bg-warning bg-primary bg-success');
+                    if (newStatus === 'shipped') {
+                        $badge.addClass('bg-primary');
+                    } else if (newStatus === 'delivered') {
+                        $badge.addClass('bg-success');
+                    } else {
+                        $badge.addClass('bg-warning');
+                    }
+                    $badge.text(newStatus);
 
-                alert(`Order status updated to ${newStatus}.`);
-            } else {
-                alert('Failed to update order status.');
+                    alert(`Order status updated to ${newStatus}.`);
+                } else {
+                    alert('Failed to update order status.');
+                }
+            })
+            .catch(err => {
+                console.error('Error updating order status:', err);
+                alert('Error updating order status.');
+            });
+    });
+
+    // Handle removing order receipts
+    $(document).on('click', '.remove-order-btn', function (e) {
+        e.preventDefault();
+        const orderDbId = $(this).data('order-id');
+        const orderNumber = String($(this).data('order-number') || '');
+
+        const deleteId = (orderDbId && orderDbId !== 'undefined' && orderDbId !== 'null') ? orderDbId : orderNumber;
+
+        if (confirm(`Are you sure you want to remove receipt for Order ${orderNumber}?`)) {
+
+            // *** IMMEDIATE: Add to deletion blacklist FIRST so it never re-appears ***
+            let deletedOrderIds = JSON.parse(localStorage.getItem('deletedOrderIds') || '[]');
+            if (orderNumber && !deletedOrderIds.includes(orderNumber)) deletedOrderIds.push(orderNumber);
+            if (orderDbId && !deletedOrderIds.includes(String(orderDbId))) deletedOrderIds.push(String(orderDbId));
+            localStorage.setItem('deletedOrderIds', JSON.stringify(deletedOrderIds));
+
+            // Also clean from localOrders
+            let localOrders = JSON.parse(localStorage.getItem('localOrders') || '[]');
+            localOrders = localOrders.filter(o => {
+                const matchId = orderDbId && String(o.id) === String(orderDbId);
+                const matchNum = orderNumber && String(o.orderId) === orderNumber;
+                return !(matchId || matchNum);
+            });
+            localStorage.setItem('localOrders', JSON.stringify(localOrders));
+
+            // Clean lastOrder if it matches
+            const lastOrder = JSON.parse(localStorage.getItem('lastOrder'));
+            if (lastOrder && (String(lastOrder.orderId) === orderNumber || (orderDbId && String(lastOrder.id) === String(orderDbId)))) {
+                localStorage.removeItem('lastOrder');
             }
-        })
-        .catch(err => {
-            console.error('Error updating order status:', err);
-            alert('Error updating order status.');
-        });
+
+            // *** IMMEDIATELY hide the card (no wait for server) ***
+            $(this).closest('.card').fadeOut(300);
+
+            // Then try server delete in background (best effort)
+            fetch(window.API.deleteOrder(deleteId), { method: 'DELETE' })
+                .then(response => {
+                    console.log(`Server delete response: ${response.status} for order ${deleteId}`);
+                })
+                .catch(err => {
+                    console.error('Server delete failed (order is already hidden locally):', err);
+                });
+
+            // Small delay then reload to ensure clean state
+            setTimeout(() => window.location.reload(), 500);
+        }
     });
 
     // Scroll products function
@@ -464,28 +538,36 @@ $(document).ready(function () {
         // Fallback: Check for locally stored orders to ensure immediate feedback and history
         const localOrders = JSON.parse(localStorage.getItem('localOrders') || '[]');
         const lastOrder = JSON.parse(localStorage.getItem('lastOrder'));
-        
+
         // Ensure lastOrder is in localOrders (migration/fallback)
         if (lastOrder && !localOrders.some(o => o.orderId === lastOrder.orderId)) {
             localOrders.push(lastOrder);
         }
 
+        // Filter out any orders the user has explicitly deleted (server-side or local blacklist)
+        const deletedOrderIds = JSON.parse(localStorage.getItem('deletedOrderIds') || '[]');
+
+        // Filter API orders using the blacklist
+        if (deletedOrderIds.length > 0) {
+            orders = orders.filter(o => !deletedOrderIds.includes(String(o.orderId)) && !deletedOrderIds.includes(String(o.order_id)));
+        }
+
         if (localOrders.length > 0) {
             // Ensure we are viewing the correct user's orders
-            const userLocalOrders = localOrders.filter(o => !emailFromUrl || (o.user && o.user.toLowerCase() === emailFromUrl.toLowerCase()));
-            
+            const userLocalOrders = localOrders.filter(o => !emailFromUrl || (o.user && String(o.user).toLowerCase() === emailFromUrl.toLowerCase()));
+
             userLocalOrders.forEach(localOrder => {
-                const exists = orders.some(o => o.orderId === localOrder.orderId);
-                if (!exists) {
+                // Don't add locally-deleted orders back
+                if (deletedOrderIds.includes(String(localOrder.orderId))) return;
+                const existsInAPI = orders.some(o => String(o.orderId) === String(localOrder.orderId));
+                if (!existsInAPI) {
                     orders.push(localOrder);
                 }
             });
-            
+
             // Re-sort all orders by date descending
             orders.sort((a, b) => new Date(b.date || b.created_at) - new Date(a.date || a.created_at));
         }
-
-
 
         const $ordersList = $('#orders-list');
 
@@ -547,7 +629,7 @@ $(document).ready(function () {
             const shipping = order.shippingDetails || {};
             const shippingAddress = `${shipping.firstName || ''} ${shipping.lastName || ''}<br>${shipping.address || ''}${shipping.address2 ? '<br>' + shipping.address2 : ''}<br>${shipping.city || ''}, ${shipping.state || ''} ${shipping.zip || ''}<br>${shipping.country || ''}`;
             const statusBadge = `<span class="badge ${shipmentStatus === 'shipped' ? 'bg-primary' : shipmentStatus === 'delivered' ? 'bg-success' : 'bg-warning'}">${shipmentStatus}</span>`;
-            
+
             // Only allow status update if user is distributor AND owns the item
             const canUpdate = isDistributor && item.distributor === currentUser.name;
 
@@ -567,7 +649,12 @@ $(document).ready(function () {
                     <div class="card-header bg-primary text-white">
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">Order ${order.orderId} - ${item.name}</h5>
-                            ${statusBadge}
+                            <div class="d-flex align-items-center gap-2">
+                                ${statusBadge}
+                                <button class="btn btn-sm btn-outline-light remove-order-btn" data-order-id="${order.id}" data-order-number="${order.orderId}" title="Remove Receipt">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body">
@@ -667,10 +754,11 @@ $(document).ready(function () {
                     const $btnContainer = $col.find('.p-3');
 
                     if (!isRetailer) {
+                        const productPrice = parseFloat(product.price) || 0;
                         const $addToCartBtn = $('<button class="btn btn-primary btn-sm rounded-0 px-3 add-to-cart">Add to Cart</button>')
                             .attr('data-id', product.id)
                             .attr('data-name', product.name)
-                            .attr('data-price', product.price)
+                            .attr('data-price', productPrice.toFixed(2))
                             .attr('data-image', product.image)
                             .attr('data-distributor', product.distributor || 'Main Warehouse');
                         $btnContainer.append($addToCartBtn);
@@ -734,10 +822,11 @@ $(document).ready(function () {
                             const $btnContainer = $col.find('.p-3');
 
                             if (!isRetailer) {
+                                const productPrice = parseFloat(product.price) || 0;
                                 const $addToCartBtn = $('<button class="btn btn-primary btn-sm rounded-0 px-3 add-to-cart">Add to Cart</button>')
                                     .attr('data-id', product.id)
                                     .attr('data-name', product.name)
-                                    .attr('data-price', product.price)
+                                    .attr('data-price', productPrice.toFixed(2))
                                     .attr('data-image', product.image)
                                     .attr('data-distributor', product.distributor || 'Main Warehouse');
                                 $btnContainer.append($addToCartBtn);
@@ -788,6 +877,7 @@ $(document).ready(function () {
 
                 categoryData.forEach(product => {
                     const isGrid = $container.hasClass('product-grid');
+                    const productPrice = parseFloat(product.price) || 0;
                     const $card = $(`
                         <div class="product-card">
                             <div class="product-image-wrapper">
@@ -796,7 +886,7 @@ $(document).ready(function () {
                             <div class="p-3 text-center">
                                 <span class="product-category">${product.category}</span>
                                 <h3 class="product-name">${product.name}</h3>
-                                <p class="product-price">$${parseFloat(product.price).toFixed(2)}</p>
+                                <p class="product-price">$${productPrice.toFixed(2)}</p>
                                 ${getRatingHtml(product.rating)}
                                 ${isRetailer && product.distributor === currentUser.name ? `<small class="text-muted d-block">Your Product</small>` : ''}
                             </div>
@@ -809,7 +899,7 @@ $(document).ready(function () {
                         const $addToCartBtn = $('<button class="btn btn-primary btn-sm rounded-0 px-3 add-to-cart">Add to Cart</button>')
                             .attr('data-id', product.id)
                             .attr('data-name', product.name)
-                            .attr('data-price', product.price)
+                            .attr('data-price', productPrice.toFixed(2))
                             .attr('data-image', product.image)
                             .attr('data-distributor', product.distributor || 'Main Warehouse');
                         $btnContainer.append($addToCartBtn);
@@ -850,6 +940,7 @@ $(document).ready(function () {
 
                         categoryData.forEach(product => {
                             const isGrid = $container.hasClass('product-grid');
+                            const productPrice = parseFloat(product.price) || 0;
                             const $card = $(`
                                 <div class="product-card">
                                     <div class="product-image-wrapper">
@@ -858,7 +949,7 @@ $(document).ready(function () {
                                     <div class="p-3 text-center">
                                         <span class="product-category">${product.category}</span>
                                         <h3 class="product-name">${product.name}</h3>
-                                        <p class="product-price">$${parseFloat(product.price).toFixed(2)}</p>
+                                        <p class="product-price">$${productPrice.toFixed(2)}</p>
                                         ${getRatingHtml(product.rating)}
                                         ${isRetailer && product.distributor === currentUser.name ? `<small class="text-muted d-block">Your Product</small>` : ''}
                                     </div>
@@ -871,7 +962,7 @@ $(document).ready(function () {
                                 const $addToCartBtn = $('<button class="btn btn-primary btn-sm rounded-0 px-3 add-to-cart">Add to Cart</button>')
                                     .attr('data-id', product.id)
                                     .attr('data-name', product.name)
-                                    .attr('data-price', product.price)
+                                    .attr('data-price', productPrice.toFixed(2))
                                     .attr('data-image', product.image)
                                     .attr('data-distributor', product.distributor || 'Main Warehouse');
                                 $btnContainer.append($addToCartBtn);
@@ -919,6 +1010,7 @@ $(document).ready(function () {
                 $container.empty();
 
                 topSalesData.forEach(product => {
+                    const productPrice = parseFloat(product.price) || 0;
                     const $card = $(`
                         <div class="product-card">
                             <div class="product-image-wrapper">
@@ -927,7 +1019,7 @@ $(document).ready(function () {
                             <div class="p-3 text-center">
                                 <span class="product-category">${product.category}</span>
                                 <h3 class="product-name">${product.name}</h3>
-                                <p class="product-price">$${parseFloat(product.price).toFixed(2)}</p>
+                                <p class="product-price">$${productPrice.toFixed(2)}</p>
                                 ${getRatingHtml(product.rating)}
                                 ${isRetailer && product.distributor === currentUser.name ? `<small class="text-muted d-block">Your Product</small>` : ''}
                             </div>
@@ -940,7 +1032,7 @@ $(document).ready(function () {
                         const $addToCartBtn = $('<button class="btn btn-primary btn-sm rounded-0 px-3 add-to-cart">Add to Cart</button>')
                             .attr('data-id', product.id)
                             .attr('data-name', product.name)
-                            .attr('data-price', product.price)
+                            .attr('data-price', productPrice.toFixed(2))
                             .attr('data-image', product.image)
                             .attr('data-distributor', product.distributor || 'Main Warehouse');
                         $btnContainer.append($addToCartBtn);
@@ -974,6 +1066,7 @@ $(document).ready(function () {
                         $container.empty();
 
                         topSalesData.forEach(product => {
+                            const productPrice = parseFloat(product.price) || 0;
                             const $card = $(`
                                 <div class="product-card">
                                     <div class="product-image-wrapper">
@@ -982,7 +1075,7 @@ $(document).ready(function () {
                                     <div class="p-3 text-center">
                                         <span class="product-category">${product.category}</span>
                                         <h3 class="product-name">${product.name}</h3>
-                                        <p class="product-price">$${parseFloat(product.price).toFixed(2)}</p>
+                                        <p class="product-price">$${productPrice.toFixed(2)}</p>
                                         ${getRatingHtml(product.rating)}
                                         ${isRetailer && product.distributor === currentUser.name ? `<small class="text-muted d-block">Your Product</small>` : ''}
                                     </div>
@@ -995,7 +1088,7 @@ $(document).ready(function () {
                                 const $addToCartBtn = $('<button class="btn btn-primary btn-sm rounded-0 px-3 add-to-cart">Add to Cart</button>')
                                     .attr('data-id', product.id)
                                     .attr('data-name', product.name)
-                                    .attr('data-price', product.price)
+                                    .attr('data-price', productPrice.toFixed(2))
                                     .attr('data-image', product.image)
                                     .attr('data-distributor', product.distributor || 'Main Warehouse');
                                 $btnContainer.append($addToCartBtn);
@@ -1061,7 +1154,7 @@ $(document).ready(function () {
 
         let subtotal = 0;
         cart.forEach(item => {
-            const itemPrice = parseFloat(item.price);
+            const itemPrice = parseFloat(item.price) || 0;
             const itemTotal = itemPrice * item.quantity;
             subtotal += itemTotal;
             $list.append(`
@@ -1098,6 +1191,28 @@ $(document).ready(function () {
 
     $('#checkout-form').on('submit', function (e) {
         e.preventDefault();
+
+        // Filter out invalid cart items (items with NaN/undefined prices)
+        const validCart = cart.filter(item => {
+            const price = parseFloat(item.price);
+            return !isNaN(price) && price > 0 && item.name && item.id;
+        });
+
+        if (validCart.length === 0) {
+            alert('Your cart is empty or contains invalid items. Please remove invalid items and try again.');
+            // Clear the invalid cart
+            cart = [];
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+            return;
+        }
+
+        // If there were invalid items, update cart
+        if (validCart.length !== cart.length) {
+            cart = validCart;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert('Some invalid items were removed from your cart. Please review before checkout.');
+        }
 
         if (cart.length === 0) {
             alert('Your cart is empty!');
@@ -1141,14 +1256,17 @@ $(document).ready(function () {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(purchase)
         })
-            .then(response => {
-                if (response.ok) {
+            .then(response => response.json())
+            .then(data => {
+                if (data.id || data.orderId) {
+                    if (data.id) purchase.id = data.id; // Store the database ID
+
                     cart = [];
                     localStorage.setItem('cart', JSON.stringify(cart));
                     updateCartCount();
                     // Store order details for receipt
                     localStorage.setItem('lastOrder', JSON.stringify(purchase));
-                    
+
                     // Also store in local history list to persist multiple orders locally
                     let localOrders = JSON.parse(localStorage.getItem('localOrders') || '[]');
                     localOrders.push(purchase);
@@ -1164,12 +1282,32 @@ $(document).ready(function () {
             })
             .catch(err => {
                 console.error('Order placement error:', err);
-                alert('Error connecting to server.');
+
+                // Local fallback: Save order locally when server is unavailable
+                purchase.id = 'local-' + Date.now();
+
+                // Store order details for receipt
+                localStorage.setItem('lastOrder', JSON.stringify(purchase));
+
+                // Also store in local history list to persist multiple orders locally
+                let localOrders = JSON.parse(localStorage.getItem('localOrders') || '[]');
+                localOrders.push(purchase);
+                localStorage.setItem('localOrders', JSON.stringify(localOrders));
+
+                // Clear cart
+                cart = [];
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCartCount();
+
+                alert('Order saved locally! (Server unavailable - will sync when server is online). Redirecting to receipt...');
+                // Store user email for orders page
+                localStorage.setItem('userEmail', orderOwnerEmail);
+                window.location.href = 'receipt.html?orderId=' + purchase.orderId;
             });
     });
 
     // Remove Product Handler
-    $(document).on('click', '.remove-product-btn', function() {
+    $(document).on('click', '.remove-product-btn', function () {
         const productId = $(this).data('product-id');
 
         if (confirm('Are you sure you want to remove this product?')) {

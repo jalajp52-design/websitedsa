@@ -191,10 +191,10 @@
                             </div>
                             <!-- Removed Expiration and CVV fields as requested -->
                         </div>
-                </div>
 
-                <button class="btn btn-primary btn-lg w-100 mt-5 rounded-0" type="submit">Place Order</button>
-                </form>
+                        <button class="btn btn-primary btn-lg w-100 mt-5 rounded-0" type="submit">Place Order</button>
+                    </form>
+                </div>
             </div>
 
             <!-- Right Column: Summary -->
@@ -225,6 +225,119 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="config.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        $(document).ready(function () {
+            // 1. Load Cart
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            const $cartList = $('#checkout-cart-list');
+            const $total = $('#checkout-total');
+            const $badge = $('.cart-count-badge');
+            
+            let totalAmount = 0;
+            let totalCount = 0;
+
+            if (cart.length === 0) {
+                $cartList.html('<li class="list-group-item text-center">Your cart is empty.</li>');
+                $('button[type="submit"]').prop('disabled', true);
+            } else {
+                $cartList.empty();
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    totalAmount += itemTotal;
+                    totalCount += item.quantity;
+                    
+                    $cartList.append(`
+                        <li class="list-group-item d-flex justify-content-between lh-sm">
+                            <div>
+                                <h6 class="my-0">${item.name}</h6>
+                                <small class="text-muted">Qty: ${item.quantity}</small>
+                            </div>
+                            <span class="text-muted">$${itemTotal.toFixed(2)}</span>
+                        </li>
+                    `);
+                });
+            }
+            
+            $total.text('$' + totalAmount.toFixed(2));
+            $badge.text(totalCount);
+            $('.cart-count').text(totalCount); // Update navbar badge
+
+            // 2. Pre-fill User Info
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+            if (currentUser) {
+                $('#email').val(currentUser.email);
+                if(currentUser.name) {
+                    const names = currentUser.name.split(' ');
+                    $('#firstName').val(names[0]);
+                    $('#lastName').val(names.slice(1).join(' '));
+                }
+            }
+
+            // 3. Handle Submit
+            $('#checkout-form').on('submit', function (e) {
+                e.preventDefault();
+
+                if (cart.length === 0) {
+                    alert('Your cart is empty!');
+                    return;
+                }
+
+                const shippingDetails = {
+                    firstName: $('#firstName').val(),
+                    lastName: $('#lastName').val(),
+                    email: $('#email').val(),
+                    phone: $('#phone').val(),
+                    address: $('#address').val(),
+                    address2: $('#address2').val(),
+                    city: $('#city').val(),
+                    state: $('#state').val(),
+                    zip: $('#zip').val(),
+                    country: $('#country').val(),
+                    paymentMethod: $('input[name="paymentMethod"]:checked').next('label').text(),
+                    cardName: $('#cc-name').val(),
+                    cardNumber: $('#cc-number').val()
+                };
+
+                const orderId = 'ORD-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+                
+                const order = {
+                    orderId: orderId,
+                    user: currentUser ? currentUser.email : shippingDetails.email,
+                    items: cart,
+                    total: totalAmount,
+                    date: new Date().toISOString(),
+                    status: 'Confirmed',
+                    shipmentStatus: 'pending',
+                    shippingDetails: shippingDetails
+                };
+
+                // Save to API
+                const apiUrl = (window.API && window.API.orders) ? window.API.orders : '/api/orders';
+
+                $.ajax({
+                    url: apiUrl,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(order),
+                    success: function (response) {
+                        // Clear cart
+                        localStorage.removeItem('cart');
+                        // Save last order for receipt fallback
+                        localStorage.setItem('lastOrder', JSON.stringify(order));
+                        // Redirect
+                        window.location.href = 'receipt.html?orderId=' + orderId;
+                    },
+                    error: function (err) {
+                        console.error('Error placing order:', err);
+                        // Fallback for demo purposes if API fails (e.g. no backend)
+                        localStorage.removeItem('cart');
+                        localStorage.setItem('lastOrder', JSON.stringify(order));
+                        window.location.href = 'receipt.html?orderId=' + orderId;
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

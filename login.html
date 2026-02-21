@@ -91,21 +91,31 @@
                     <div class="list-group list-group-flush mt-4 text-start">
                         <button
                             class="list-group-item list-group-item-action d-flex align-items-center py-3 border-top google-acc-select"
-                            data-email="beauty.pro@gmail.com" data-name="Beauty Professional">
+                            data-email="beauty.pro@gmail.com" data-name="Beauty Professional" data-role="retailer">
                             <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
                                 style="width: 32px; height: 32px;">B</div>
                             <div>
-                                <div class="fw-bold small">Beauty Professional</div>
+                                <div class="fw-bold small">Beauty Professional (Retailer)</div>
                                 <div class="text-muted" style="font-size: 0.75rem;">beauty.pro@gmail.com</div>
                             </div>
                         </button>
                         <button
                             class="list-group-item list-group-item-action d-flex align-items-center py-3 google-acc-select"
-                            data-email="customer.test@gmail.com" data-name="John Doe">
+                            data-email="distributor.test@gmail.com" data-name="Main Distributor" data-role="distributor">
+                            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center me-3"
+                                style="width: 32px; height: 32px;">D</div>
+                            <div>
+                                <div class="fw-bold small">Main Distributor</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">distributor.test@gmail.com</div>
+                            </div>
+                        </button>
+                        <button
+                            class="list-group-item list-group-item-action d-flex align-items-center py-3 google-acc-select"
+                            data-email="customer.test@gmail.com" data-name="John Doe" data-role="customer">
                             <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center me-3"
                                 style="width: 32px; height: 32px;">J</div>
                             <div>
-                                <div class="fw-bold small">John Doe</div>
+                                <div class="fw-bold small">John Doe (Customer)</div>
                                 <div class="text-muted" style="font-size: 0.75rem;">customer.test@gmail.com</div>
                             </div>
                         </button>
@@ -159,14 +169,15 @@
             $('.google-acc-select').on('click', function () {
                 const name = $(this).data('name');
                 const email = $(this).data('email');
+                const role = $(this).data('role') || 'customer';
                 const mockUser = {
                     name: name,
                     email: email,
-                    role: 'customer',
+                    role: role,
                     id: 'google-' + Date.now()
                 };
                 sessionStorage.setItem('currentUser', JSON.stringify(mockUser));
-                alert('Signed in with Google! Welcome, ' + name);
+                alert('Signed in with Google! Welcome, ' + name + ' (' + role + ')');
                 window.location.href = 'index.html';
             });
 
